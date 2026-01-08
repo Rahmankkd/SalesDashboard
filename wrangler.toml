@@ -2,3 +2,7 @@ name = "sales-tracker"
 pages_build_output_dir = ".open-next/assets"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_als"]
+
+[vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://ajnefxfkterabnzluqwz.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqbmVmeGZrdGVyYWJuemx1cXd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MjI5MjcsImV4cCI6MjA4MzE5ODkyN30.M5QSwskeag4eR9vw8t88jGZy0A-nsFf-emMSZyY7Wr4"
