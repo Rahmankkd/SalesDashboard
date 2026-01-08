@@ -6,11 +6,19 @@ import { cookies } from 'next/headers';
 
 // 1. ADMIN CLIENT (Bypasses RLS)
 // We use this to read data reliably.
-const adminSupabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-);
+function getAdminClient() {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!key) {
+        console.warn("Missing SUPABASE_SERVICE_ROLE_KEY. Admin operations will fail.");
+        return null;
+    }
+
+    return createClient(url, key, {
+        auth: { autoRefreshToken: false, persistSession: false }
+    });
+}
 
 // 2. HELPER: Get Current Auth User
 async function getAuthUser() {
@@ -34,11 +42,23 @@ async function getAuthUser() {
 // --- PUBLIC ACTIONS ---
 
 export async function getUserRole() {
-    const user = await getAuthUser();
+    const cookieStore = await cookies();
+    const authClient = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) { return cookieStore.get(name)?.value },
+            }
+        }
+    );
+
+    const { data: { user } } = await authClient.auth.getUser();
     if (!user) return null;
 
-    // Use Admin Client to Fetch Role (No Recursion Risk)
-    const { data, error } = await adminSupabase
+    // Use Auth Client to Fetch Role (Respects RLS - "Users can read own profile")
+    // This avoids crashing if SUPABASE_SERVICE_ROLE_KEY is missing in Cloudflare
+    const { data, error } = await authClient
         .from('profiles')
         .select('role')
         .eq('id', user.id)
@@ -56,15 +76,18 @@ export async function getAllProfiles() {
     if (!user) return { error: "Not Authenticated" };
 
     // 1. Check if requester is Admin/Superuser
-    const { data: requesterProfile } = await adminSupabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+    const role = await getUserRole();
 
-    if (!requesterProfile || (requesterProfile.role !== 'superuser' && requesterProfile.role !== 'admin')) {
+    if (role !== 'superuser' && role !== 'admin') {
         return { error: "Unauthorized" };
     }
+
+    const adminSupabase = getAdminClient();
+    if (!adminSupabase) {
+        return { error: "Server Error: Missing Admin Configuration" };
+    }
+
+
 
     // 2. Fetch All Profiles
     const { data, error } = await adminSupabase
