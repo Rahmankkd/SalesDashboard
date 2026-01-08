@@ -1,7 +1,7 @@
 name = "sales-tracker"
 pages_build_output_dir = ".open-next/assets"
 compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_als"]
+compatibility_flags = ["nodejs_compat"]
 
 [vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://ajnefxfkterabnzluqwz.supabase.co"
