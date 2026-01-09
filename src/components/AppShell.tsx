@@ -61,18 +61,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-mono font-bold shadow-[0_0_15px_rgba(22,163,74,0.5)]">
                         KK
                     </div>
-                    <span className="font-bold text-white tracking-tight hidden md:block">Krispy Kreme</span>
+                    <span className="font-bold text-white text-xs md:text-sm tracking-tight hidden md:block uppercase">Berjaya Krispy Kreme Doughnuts Sdn Bhd</span>
                 </div>
 
                 {/* 2. CENTER: NAVIGATION LINKS */}
                 <nav className="flex items-center gap-1 md:gap-2">
 
                     <NavLink href="/dashboard" active={pathname === '/dashboard'} icon={<IconDash />}>
-                        Performance
+                        Sales
                     </NavLink>
 
                     <NavLink href="/dashboard/reports" active={pathname === '/dashboard/reports'} icon={<IconReport />}>
-                        Reports
+                        Beverages & Combo
                     </NavLink>
 
                     {(role === 'admin' || role === 'superuser') && (
@@ -83,7 +83,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
                     {role === 'superuser' && (
                         <NavLink href="/superuser" active={pathname === '/superuser'} icon={<IconUsers />}>
-                            User Mgmt
+                            Users
                         </NavLink>
                     )}
 
