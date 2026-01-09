@@ -22,11 +22,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
 
+    const [session, setSession] = useState<any>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
+    const [showSplash, setShowSplash] = useState(true); // Splash state
     const [role, setRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     // Hide Top Bar on login page
     const isLoginPage = pathname === '/login';
+
+    // Splash Effect
+    useEffect(() => {
+        // Only show splash on initial mount/refresh, maybe just a timer for aesthetic
+        const timer = setTimeout(() => setShowSplash(false), 2500);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         const checkUser = async () => {
