@@ -68,7 +68,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <nav className="flex items-center gap-1 md:gap-2">
 
                     <NavLink href="/dashboard" active={pathname === '/dashboard'} icon={<IconDash />}>
-                        Dashboard
+                        Performance
                     </NavLink>
 
                     <NavLink href="/dashboard/reports" active={pathname === '/dashboard/reports'} icon={<IconReport />}>
@@ -83,7 +83,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
                     {role === 'superuser' && (
                         <NavLink href="/superuser" active={pathname === '/superuser'} icon={<IconUsers />}>
-                            Users
+                            User Mgmt
                         </NavLink>
                     )}
 
@@ -96,7 +96,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <div className="flex items-center gap-4">
                     {/* Role Badge */}
                     <div className="hidden md:flex flex-col items-end">
-                        <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Logged in as</span>
+                        <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Signed in as</span>
                         <span className={`text-xs font-bold uppercase ${role === 'superuser' ? 'text-purple-400' : role === 'admin' ? 'text-blue-400' : 'text-slate-200'}`}>
                             {role}
                         </span>
@@ -110,7 +110,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         title="Sign Out"
                     >
                         <IconLogout />
-                        <span className="hidden md:inline">Logout</span>
+                        <span className="hidden md:inline">Sign Out</span>
                     </button>
                 </div>
             </header>

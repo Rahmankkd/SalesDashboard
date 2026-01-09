@@ -117,11 +117,15 @@ export default function ReportsPage() {
         const csvRows = [headers.join(',')];
 
         records.forEach(r => {
+            const comboCount = r.combo_details
+                ? Object.values(r.combo_details).reduce((a: any, b: any) => a + b, 0)
+                : 0;
+
             const row = [
                 r.date.split('T')[0],
                 `"${r.outlets.name}"`, // Quote to handle commas in names
                 r.beverages || 0,
-                r.sales_mtd || 0
+                comboCount
             ];
             csvRows.push(row.join(','));
         });
@@ -259,17 +263,23 @@ export default function ReportsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {records.slice(0, 100).map((r, i) => (
-                                    <tr key={i} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 font-bold text-slate-700">{new Date(r.date).toLocaleDateString()}</td>
-                                        <td className="px-6 py-4 font-medium text-slate-900">{r.outlets.name}</td>
-                                        <td className="px-6 py-4 text-right font-bold text-purple-600">RM {(r.beverages || 0).toLocaleString()}</td>
-                                        <td className="px-6 py-4 text-center font-bold text-blue-600">{(r.sales_mtd || 0)} PCS</td>
-                                    </tr>
-                                ))}
+                                {records.slice(0, 100).map((r, i) => {
+                                    const comboCount = r.combo_details
+                                        ? Object.values(r.combo_details).reduce((acc: number, val: any) => acc + (Number(val) || 0), 0)
+                                        : 0;
+
+                                    return (
+                                        <tr key={i} className="hover:bg-slate-50 transition-colors">
+                                            <td className="px-6 py-4 font-bold text-slate-700">{new Date(r.date).toLocaleDateString()}</td>
+                                            <td className="px-6 py-4 font-medium text-slate-900">{r.outlets.name}</td>
+                                            <td className="px-6 py-4 text-right font-bold text-purple-600">RM {(r.beverages || 0).toLocaleString()}</td>
+                                            <td className="px-6 py-4 text-center font-bold text-blue-600">{comboCount} PCS</td>
+                                        </tr>
+                                    );
+                                })}
                                 {records.length === 0 && (
                                     <tr>
-                                        <td colSpan={8} className="px-6 py-12 text-center text-slate-400">No records found for selected period.</td>
+                                        <td colSpan={4} className="px-6 py-12 text-center text-slate-400">No records found for selected period.</td>
                                     </tr>
                                 )}
                             </tbody>

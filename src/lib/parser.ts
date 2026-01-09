@@ -104,7 +104,7 @@ export function parseWhatsAppReport(text: string) {
                 }
 
                 if (pcs > 0) {
-                    data.sales_mtd += pcs; // Accumulate TOTAL PCS
+                    // data.sales_mtd += pcs; // REMOVED: Count stored in combo_details only. Keep sales_mtd for money.
 
                     // Detailed JSON
                     let key = line.split('/')[0].split(':')[0].trim();
