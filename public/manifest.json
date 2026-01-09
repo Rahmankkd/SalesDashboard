@@ -1,6 +1,6 @@
 {
-    "name": "Berjaya Krispy Kreme Sales",
-    "short_name": "Krispy Kreme",
+    "name": "Sales Tracker Pro",
+    "short_name": "SalesTracker",
     "start_url": "/dashboard",
     "display": "standalone",
     "background_color": "#0f172a",
