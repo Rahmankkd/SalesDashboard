@@ -41,7 +41,9 @@ export default function Dashboard() {
   const [animateChart, setAnimateChart] = useState(false);
 
   useEffect(() => { fetchOutlets(); }, []);
-  useEffect(() => { fetchReportData(); }, [dateRange, compareRange, isManualCompare, selectedRegion, selectedOutlet, outlets]);
+  useEffect(() => {
+    if (dateRange.end && (compareRange.end || !isManualCompare)) fetchReportData();
+  }, [dateRange, compareRange, isManualCompare, selectedRegion, selectedOutlet, outlets]);
 
   const fetchOutlets = async () => {
     const { data } = await supabase.from('outlets').select('*').eq('is_active', true).order('name');
@@ -171,7 +173,7 @@ export default function Dashboard() {
               label="Current Period"
               startDate={dateRange.start}
               endDate={dateRange.end}
-              onChange={(range) => setDateRange({ start: range.start, end: range.end || range.start })}
+              onChange={(range) => setDateRange({ start: range.start, end: range.end })}
             />
           </div>
 
@@ -186,7 +188,7 @@ export default function Dashboard() {
               <DateRangePicker
                 startDate={compareRange.start}
                 endDate={compareRange.end}
-                onChange={(range) => setCompareRange({ start: range.start, end: range.end || range.start })}
+                onChange={(range) => setCompareRange({ start: range.start, end: range.end })}
               />
             </div>
           </div>

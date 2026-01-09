@@ -210,7 +210,7 @@ export default function AdminPage() {
 
     return (
         <div className="bg-slate-950 min-h-screen p-4 md:p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
+            <div className="max-w-[1600px] mx-auto space-y-8">
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row justify-between items-end pb-6 border-b border-white/10">
                     <div>

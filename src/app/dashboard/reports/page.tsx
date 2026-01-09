@@ -41,7 +41,7 @@ export default function ReportsPage() {
     }, []);
 
     useEffect(() => {
-        if (outlets.length > 0) fetchReportData();
+        if (outlets.length > 0 && dateRange.end) fetchReportData();
     }, [dateRange, selectedRegion, selectedOutlet, outlets]);
 
     // --- FETCHERS ---
@@ -163,7 +163,7 @@ export default function ReportsPage() {
                             label="Date Range"
                             startDate={dateRange.start}
                             endDate={dateRange.end}
-                            onChange={(range) => setDateRange({ start: range.start, end: range.end || range.start })}
+                            onChange={(range) => setDateRange({ start: range.start, end: range.end })}
                         />
                     </div>
 
@@ -207,7 +207,7 @@ export default function ReportsPage() {
                     {/* TREND CHART */}
                     <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px]">
                         <h3 className="text-sm font-bold text-slate-900 mb-6">Beverage Sales Trend</h3>
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="100%" height={500}>
                             <LineChart data={trendData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} />
@@ -252,7 +252,7 @@ export default function ReportsPage() {
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px] flex flex-col justify-center">
                     <h3 className="text-sm font-bold text-slate-900 mb-6">Top Outlets (Beverages)</h3>
                     <div className="flex-1 w-full">
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="100%" height={500}>
                             <BarChart data={rankingData} layout="vertical" margin={{ left: 20, right: 20, top: 0, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
                                 <XAxis type="number" hide />
