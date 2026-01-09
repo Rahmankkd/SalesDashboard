@@ -143,14 +143,9 @@ export default function ReportsPage() {
             <div className="max-w-[1600px] mx-auto space-y-8">
 
                 {/* --- HEADER --- */}
-                <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
-                    <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Beverages & <span className="text-blue-600">Combo</span></h1>
-                        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Deep Dive Analytics</p>
-                    </div>
-                    <button onClick={downloadCSV} className="flex items-center gap-2 bg-slate-900 text-white px-5 py-3 rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all">
-                        <Download size={18} /> Export CSV
-                    </button>
+                <div className="mb-8">
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Beverages & <span className="text-blue-600">Combo</span></h1>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Deep Dive Analytics</p>
                 </div>
 
                 {/* --- FILTERS --- */}
@@ -237,17 +232,19 @@ export default function ReportsPage() {
                 </div>
 
                 {/* --- CHARTS ROW 2 --- */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px]">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px] flex flex-col justify-center">
                     <h3 className="text-sm font-bold text-slate-900 mb-6">Top Outlets (Beverages)</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={rankingData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
-                            <XAxis type="number" hide />
-                            <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fontWeight: 600, fill: '#1E293B' }} axisLine={false} tickLine={false} />
-                            <Tooltip cursor={{ fill: '#F1F5F9' }} formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Bev Sales']} />
-                            <Bar dataKey="sales" fill="#8B5CF6" radius={[0, 4, 4, 0]} barSize={20} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <div className="flex-1 w-full">
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={rankingData} layout="vertical" margin={{ left: 20, right: 20, top: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
+                                <XAxis type="number" hide />
+                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fontWeight: 600, fill: '#1E293B' }} axisLine={false} tickLine={false} />
+                                <Tooltip cursor={{ fill: '#F1F5F9' }} formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Bev Sales']} />
+                                <Bar dataKey="sales" fill="#8B5CF6" radius={[0, 4, 4, 0]} barSize={20} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
 
                 {/* --- DATA TABLE --- */}

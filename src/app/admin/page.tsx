@@ -214,13 +214,8 @@ export default function AdminPage() {
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row justify-between items-end pb-6 border-b border-white/10">
                     <div>
-                        <div className="flex items-center gap-4 mb-2">
-                            {/* Back button removed */}
-                        </div>
-                        <h1 className="text-3xl font-black tracking-tight text-white mb-1">
-                            Admin<span className="text-blue-400">Panel</span>
-                        </h1>
-                        <p className="text-slate-400 text-sm font-medium">Daily Sales Ingestion System</p>
+                        <h1 className="text-4xl font-black text-white tracking-tight">Admin <span className="text-blue-500">Panel</span></h1>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Daily Sales Ingestion System</p>
                     </div>
 
                     <div className="flex flex-col w-full md:w-auto md:items-end gap-2 mt-4 md:mt-0">
@@ -285,6 +280,7 @@ export default function AdminPage() {
                             )}
 
                             <div className="space-y-4 mb-6">
+                                <div className="flex justify-between"><span className="text-slate-400 text-xs">Date</span> <span className="font-mono text-white font-bold">{parsedData.reportDate || '-'}</span></div>
                                 <div className="flex justify-between"><span className="text-slate-400 text-xs">Sales</span> <span className="font-mono text-green-400 font-bold">RM {parsedData.sales.toLocaleString()}</span></div>
                                 <div className="flex justify-between"><span className="text-slate-400 text-xs">Beverages</span> <span className="font-mono text-purple-400 font-bold">RM {parsedData.beverages.toLocaleString()}</span></div>
                                 <div className="flex justify-between"><span className="text-slate-400 text-xs">Events</span> <span className="font-mono text-yellow-400 font-bold">RM {parsedData.event_sales.toLocaleString()}</span></div>

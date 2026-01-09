@@ -164,41 +164,45 @@ export default function Dashboard() {
         </div>
 
         {/* --- FILTERS (Now including Low Bev toggle) --- */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8 flex flex-col xl:flex-row gap-8">
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8 flex flex-col xl:flex-row gap-6">
           <div className="flex-1">
-            <p className="text-[10px] font-bold text-blue-600 uppercase mb-3 flex items-center gap-2"><IconCalendar /> Current Period</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><IconCalendar /> Current Period</p>
             <div className="flex items-center gap-2">
-              <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} className="bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm font-bold outline-none" />
-              <span className="text-slate-300">to</span>
-              <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} className="bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm font-bold outline-none" />
+              <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
+              <span className="text-slate-300 font-bold">-</span>
+              <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
             </div>
           </div>
 
           <div className={`flex-1 transition-opacity ${!isManualCompare ? 'opacity-50' : 'opacity-100'}`}>
             <div className="flex justify-between items-center mb-3">
-              <p className="text-[10px] font-bold text-amber-600 uppercase flex items-center gap-2"><IconCalendar /> Last Year Period</p>
-              <button onClick={() => setIsManualCompare(!isManualCompare)} className="text-[9px] font-black uppercase text-amber-700 bg-amber-50 px-2 py-1 rounded">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><IconCalendar /> Last Year Period</p>
+              <button onClick={() => setIsManualCompare(!isManualCompare)} className="text-[9px] font-black uppercase text-amber-700 bg-amber-50 px-2 py-1 rounded hover:bg-amber-100 transition-colors">
                 {isManualCompare ? 'Manual' : 'Auto'}
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <input type="date" disabled={!isManualCompare} value={isManualCompare ? compareRange.start : ""} onChange={(e) => setCompareRange({ ...compareRange, start: e.target.value })} className="bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm font-bold" />
-              <span className="text-slate-300">to</span>
-              <input type="date" disabled={!isManualCompare} value={isManualCompare ? compareRange.end : ""} onChange={(e) => setCompareRange({ ...compareRange, end: e.target.value })} className="bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm font-bold" />
+              <input type="date" disabled={!isManualCompare} value={isManualCompare ? compareRange.start : ""} onChange={(e) => setCompareRange({ ...compareRange, start: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
+              <span className="text-slate-300 font-bold">-</span>
+              <input type="date" disabled={!isManualCompare} value={isManualCompare ? compareRange.end : ""} onChange={(e) => setCompareRange({ ...compareRange, end: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
             </div>
           </div>
 
-          <div className="flex-1 flex flex-wrap gap-3 items-end">
-            <select value={selectedRegion} onChange={(e) => { setSelectedRegion(e.target.value); setSelectedOutlet('All'); }} className="flex-1 min-w-[120px] bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm font-bold outline-none">
-              <option value="All">All Regions</option>
-              {Array.from(new Set(outlets.map(o => o.region))).map(r => (<option key={r} value={r}>{r}</option>))}
-            </select>
-            <select value={selectedOutlet} onChange={(e) => setSelectedOutlet(e.target.value)} className="flex-1 min-w-[120px] bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm font-bold outline-none">
-              <option value="All">All Outlets</option>
-              {outlets.filter(o => selectedRegion === 'All' || o.region === selectedRegion).map(o => (<option key={o.id} value={o.id}>{o.name}</option>))}
-            </select>
-
-            {/* SMALL TOGGLE FILTER */}
+          <div className="flex-1 flex flex-col md:flex-row gap-3">
+            <div className="flex-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Region</p>
+              <select value={selectedRegion} onChange={(e) => { setSelectedRegion(e.target.value); setSelectedOutlet('All'); }} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
+                <option value="All">All Regions</option>
+                {Array.from(new Set(outlets.map(o => o.region))).map(r => (<option key={r} value={r}>{r}</option>))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Outlet</p>
+              <select value={selectedOutlet} onChange={(e) => setSelectedOutlet(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
+                <option value="All">All Outlets</option>
+                {outlets.filter(o => selectedRegion === 'All' || o.region === selectedRegion).map(o => (<option key={o.id} value={o.id}>{o.name}</option>))}
+              </select>
+            </div>
           </div>
         </div>
 
