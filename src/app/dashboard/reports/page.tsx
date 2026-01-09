@@ -151,7 +151,7 @@ export default function ReportsPage() {
 
                 {/* --- FILTERS --- */}
                 {/* --- FILTERS --- */}
-                // ... inside component ...
+
 
                 {/* --- FILTERS --- */}
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

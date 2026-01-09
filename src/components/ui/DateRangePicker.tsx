@@ -38,8 +38,12 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, end
     };
 
     const handleDateClick = (day: number) => {
-        const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-        const clickedDateStr = formatDate(clickedDate);
+        // Create date in local time (noon to avoid DST issues)
+        const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day, 12, 0, 0);
+        // Format as YYYY-MM-DD using local time
+        const offset = clickedDate.getTimezoneOffset();
+        const localDate = new Date(clickedDate.getTime() - (offset * 60 * 1000));
+        const clickedDateStr = localDate.toISOString().split('T')[0];
 
         // Logic:
         // 1. If start & end exist, reset and make this the new start.
