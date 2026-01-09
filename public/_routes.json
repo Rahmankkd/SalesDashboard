@@ -6,6 +6,10 @@
     "exclude": [
         "/_next/static/*",
         "/favicon.ico",
+        "/sw.js",
+        "/manifest.json",
+        "/workbox-*",
+        "/icon-*",
         "/file.svg",
         "/globe.svg",
         "/next.svg",
