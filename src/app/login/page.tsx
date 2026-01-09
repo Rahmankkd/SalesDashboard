@@ -92,7 +92,7 @@ export default function LoginPage() {
 
                 <div className="mt-8 text-center flex flex-col gap-1">
                     <p className="text-xs text-slate-500">Authorized Personnel Only</p>
-                    <p className="text-[10px] text-slate-600 font-mono">v1.16 (3D FX + Graph Fix)</p>
+                    <p className="text-[10px] text-slate-600 font-mono">v1.17 (Mobile Perf Max)</p>
                     {/* DEBUG INFO */}
                     <div className="mt-2 text-[9px] text-slate-700 font-mono flex flex-col gap-1 items-center opacity-50">
                         {typeof window !== 'undefined' && (

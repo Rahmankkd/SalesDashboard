@@ -10,13 +10,11 @@ export default function SplashScreen() {
                 animate={{
                     rotateX: [0, 180, 360],
                     rotateY: [0, 180, 360],
-                    scale: [1, 1.2, 1],
-                    borderRadius: ["20%", "50%", "20%"]
+                    scale: [1, 1.1, 1],
                 }}
                 transition={{
                     duration: 3,
-                    ease: "easeInOut",
-                    times: [0, 0.5, 1],
+                    ease: "linear",
                     repeat: Infinity,
                 }}
             />
