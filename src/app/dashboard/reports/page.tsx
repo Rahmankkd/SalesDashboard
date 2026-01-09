@@ -207,7 +207,7 @@ export default function ReportsPage() {
                     {/* TREND CHART */}
                     <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px]">
                         <h3 className="text-sm font-bold text-slate-900 mb-6">Beverage Sales Trend</h3>
-                        <ResponsiveContainer width="100%" height={500}>
+                        <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={trendData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} />
