@@ -199,14 +199,6 @@ export default function Dashboard() {
             </select>
 
             {/* SMALL TOGGLE FILTER */}
-            <button
-              onClick={() => setShowLowBevOnly(!showLowBevOnly)}
-              className={`p-2 rounded-xl text-[10px] font-bold border transition-all ${showLowBevOnly ? 'bg-orange-600 text-white border-orange-700' : 'bg-slate-50 text-slate-400 border-slate-200'
-                }`}
-              title="Filter records under 10% Beverage"
-            >
-              {showLowBevOnly ? 'BEV FILTER: ON' : 'BEV FILTER: OFF'}
-            </button>
           </div>
         </div>
 

@@ -78,22 +78,22 @@ export default function ReportsPage() {
     };
 
     const processCharts = (data: any[]) => {
-        // 1. Trend Data (Sum by Date)
+        // 1. Trend Data (Sum Bev by Date)
         const byDate: Record<string, number> = {};
         data.forEach(r => {
             const d = r.date.split('T')[0];
-            byDate[d] = (byDate[d] || 0) + r.total_sales;
+            byDate[d] = (byDate[d] || 0) + (r.beverages || 0);
         });
         const trend = Object.entries(byDate)
             .map(([date, sales]) => ({ date, sales }))
             .sort((a, b) => a.date.localeCompare(b.date));
         setTrendData(trend);
 
-        // 2. Ranking Data (Sum by Outlet)
+        // 2. Ranking Data (Sum Bev by Outlet)
         const byOutlet: Record<string, number> = {};
         data.forEach(r => {
             const name = r.outlets.name;
-            byOutlet[name] = (byOutlet[name] || 0) + r.total_sales;
+            byOutlet[name] = (byOutlet[name] || 0) + (r.beverages || 0);
         });
         const ranking = Object.entries(byOutlet)
             .map(([name, sales]) => ({ name, sales }))
@@ -101,11 +101,11 @@ export default function ReportsPage() {
             .slice(0, 10); // Top 10
         setRankingData(ranking);
 
-        // 3. Region Data (Sum by Region)
+        // 3. Region Data (Sum Bev by Region)
         const byRegion: Record<string, number> = {};
         data.forEach(r => {
             const reg = r.outlets.region;
-            byRegion[reg] = (byRegion[reg] || 0) + r.total_sales;
+            byRegion[reg] = (byRegion[reg] || 0) + (r.beverages || 0);
         });
         const region = Object.entries(byRegion)
             .map(([name, value]) => ({ name, value }));
@@ -113,19 +113,15 @@ export default function ReportsPage() {
     };
 
     const downloadCSV = () => {
-        const headers = ['Date', 'Outlet', 'Region', 'Total Sales', 'Target', 'Variance', 'TC', 'Beverages'];
+        const headers = ['Date', 'Outlet', 'Bev (RM)', 'Combo (PCS)'];
         const csvRows = [headers.join(',')];
 
         records.forEach(r => {
             const row = [
                 r.date.split('T')[0],
                 `"${r.outlets.name}"`, // Quote to handle commas in names
-                r.outlets.region,
-                r.total_sales,
-                r.target,
-                r.variance,
-                r.transaction_count,
-                r.beverages
+                r.beverages || 0,
+                r.sales_mtd || 0
             ];
             csvRows.push(row.join(','));
         });
@@ -194,7 +190,7 @@ export default function ReportsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* TREND CHART */}
                     <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px]">
-                        <h3 className="text-sm font-bold text-slate-900 mb-6">Sales Trend</h3>
+                        <h3 className="text-sm font-bold text-slate-900 mb-6">Beverage Sales Trend</h3>
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={trendData}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
@@ -202,16 +198,16 @@ export default function ReportsPage() {
                                 <YAxis tick={{ fontSize: 10, fill: '#64748B' }} axisLine={false} tickLine={false} tickFormatter={(val) => `RM ${(val / 1000).toFixed(0)}k`} />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-                                    formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Sales']}
+                                    formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Bev Sales']}
                                 />
-                                <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={3} dot={{ r: 4, fill: '#3B82F6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                                <Line type="monotone" dataKey="sales" stroke="#8B5CF6" strokeWidth={3} dot={{ r: 4, fill: '#8B5CF6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
 
                     {/* PIE CHART */}
                     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px] flex flex-col">
-                        <h3 className="text-sm font-bold text-slate-900 mb-2">Sales by Region</h3>
+                        <h3 className="text-sm font-bold text-slate-900 mb-2">Bev Sales by Region</h3>
                         <div className="flex-1">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -238,14 +234,14 @@ export default function ReportsPage() {
 
                 {/* --- CHARTS ROW 2 --- */}
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px]">
-                    <h3 className="text-sm font-bold text-slate-900 mb-6">Top Performing Outlets</h3>
+                    <h3 className="text-sm font-bold text-slate-900 mb-6">Top Outlets (Beverages)</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={rankingData} layout="vertical" margin={{ left: 40, right: 40 }}>
                             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
                             <XAxis type="number" hide />
                             <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fontWeight: 600, fill: '#1E293B' }} axisLine={false} tickLine={false} />
-                            <Tooltip cursor={{ fill: '#F1F5F9' }} formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Sales']} />
-                            <Bar dataKey="sales" fill="#10B981" radius={[0, 4, 4, 0]} barSize={20} />
+                            <Tooltip cursor={{ fill: '#F1F5F9' }} formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Bev Sales']} />
+                            <Bar dataKey="sales" fill="#8B5CF6" radius={[0, 4, 4, 0]} barSize={20} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -258,12 +254,8 @@ export default function ReportsPage() {
                                 <tr>
                                     <th className="px-6 py-4">Date</th>
                                     <th className="px-6 py-4">Outlet</th>
-                                    <th className="px-6 py-4">Region</th>
-                                    <th className="px-6 py-4 text-right">Sales</th>
-                                    <th className="px-6 py-4 text-right">Target</th>
-                                    <th className="px-6 py-4 text-right">Variance</th>
-                                    <th className="px-6 py-4 text-center">TC</th>
-                                    <th className="px-6 py-4 text-right">Bev & Combo</th>
+                                    <th className="px-6 py-4 text-right">Bev (RM)</th>
+                                    <th className="px-6 py-4 text-center">Combo (PCS)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -271,14 +263,8 @@ export default function ReportsPage() {
                                     <tr key={i} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 font-bold text-slate-700">{new Date(r.date).toLocaleDateString()}</td>
                                         <td className="px-6 py-4 font-medium text-slate-900">{r.outlets.name}</td>
-                                        <td className="px-6 py-4 text-slate-500 text-xs">{r.outlets.region}</td>
-                                        <td className="px-6 py-4 text-right font-bold text-blue-600">RM {r.total_sales.toLocaleString()}</td>
-                                        <td className="px-6 py-4 text-right font-medium text-slate-500">RM {r.target.toLocaleString()}</td>
-                                        <td className={`px-6 py-4 text-right font-bold ${(r.total_sales - r.target) >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                            {(r.total_sales - r.target).toLocaleString()}
-                                        </td>
-                                        <td className="px-6 py-4 text-center font-medium text-slate-600">{r.transaction_count}</td>
-                                        <td className="px-6 py-4 text-right font-medium text-purple-600">RM {(r.beverages || 0).toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-right font-bold text-purple-600">RM {(r.beverages || 0).toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-center font-bold text-blue-600">{(r.sales_mtd || 0)} PCS</td>
                                     </tr>
                                 ))}
                                 {records.length === 0 && (
