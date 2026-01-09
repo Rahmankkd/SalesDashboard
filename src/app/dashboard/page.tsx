@@ -211,7 +211,7 @@ export default function Dashboard() {
         </div>
 
         {/* --- METRICS --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between group">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><IconTrendingUp /> Total Sales</p>
             <h2 className="text-3xl font-black text-slate-900">RM {formatExact(totals.sales)}</h2>
@@ -223,29 +223,20 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <p className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-4 flex items-center gap-2"><IconBeaker /> Bev Attachment</p>
-            <h2 className="text-3xl font-black text-slate-900">RM {formatExact(totals.beverages)}</h2>
-            <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
-              <p className={`text-xl font-black ${avgBevPercent >= 10 ? 'text-green-600' : 'text-orange-500'}`}>{avgBevPercent.toFixed(1)}%</p>
-              <div className="w-24 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                <div className={`h-full ${avgBevPercent >= 10 ? 'bg-green-500' : 'bg-orange-500'}`} style={{ width: `${Math.min(avgBevPercent * 10, 100)}%` }}></div>
-              </div>
-            </div>
-          </div>
+
 
           {/* --- TOP PERFORMERS (New) --- */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col group">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">Top Outlets</p>
             <div className="flex-1 min-h-[100px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topOutlets} layout="vertical" margin={{ left: 0, right: 30, top: 0, bottom: 0 }}>
+                <BarChart data={topOutlets} layout="vertical" margin={{ left: 0, right: 20, top: 0, bottom: 0 }}>
                   <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 9, fontWeight: 700, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748B' }} axisLine={false} tickLine={false} />
                   <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '10px' }} formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, '']} />
-                  <Bar dataKey="sales" radius={[0, 4, 4, 0]} barSize={12}>
+                  <Bar dataKey="sales" radius={[0, 4, 4, 0]} barSize={24} background={{ fill: '#F1F5F9' }}>
                     {topOutlets.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#94A3B8'} />
+                      <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#10B981'} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -259,7 +250,6 @@ export default function Dashboard() {
               <h3 className="font-bold text-[10px] text-slate-400 uppercase tracking-wider">Trend View</h3>
               <div className="flex gap-3">
                 <div className="flex items-center gap-1"><div className="w-2 h-2 bg-blue-500 rounded-full"></div><span className="text-[8px] font-bold">TOTAL</span></div>
-                <div className="flex items-center gap-1"><div className="w-2 h-2 bg-purple-500 rounded-full"></div><span className="text-[8px] font-bold">BEV</span></div>
                 <div className="flex items-center gap-1"><div className="w-2 h-2 bg-amber-400 rounded-full"></div><span className="text-[8px] font-bold">LY</span></div>
               </div>
             </div>
@@ -282,10 +272,8 @@ export default function Dashboard() {
                       {/* LY (Amber) */}
                       <div style={{ height: animateChart ? `${lyHeight}%` : '0%' }} className="w-1/2 bg-amber-400/60 rounded-t-sm transition-all duration-700"></div>
 
-                      {/* Current (Blue) with Stacked Purple Bev */}
-                      <div style={{ height: animateChart ? `${totalHeight}%` : '0%' }} className="w-1/2 bg-blue-500 rounded-t-sm transition-all duration-700 relative overflow-hidden">
-                        <div style={{ height: `${bevHeight}%` }} className="absolute bottom-0 left-0 right-0 bg-purple-500/80 border-t border-white/10"></div>
-                      </div>
+                      {/* Current (Blue) */}
+                      <div style={{ height: animateChart ? `${totalHeight}%` : '0%' }} className="w-1/2 bg-blue-500 rounded-t-sm transition-all duration-700"></div>
                     </div>
                     <div className="text-[8px] font-black text-slate-300 mt-2 text-center uppercase">{item.label}</div>
                   </div>
@@ -306,8 +294,6 @@ export default function Dashboard() {
                   <th className="px-4 py-4 text-right text-amber-700">Last Year</th>
                   <th className="px-4 py-4 text-right border-r border-slate-50">Sales Var</th>
                   <th className="px-4 py-4 text-center font-black">TC</th>
-                  <th className="px-4 py-4 text-center text-purple-700 bg-purple-50/30 font-bold">Bev Sales</th>
-                  <th className="px-4 py-4 text-center font-black">Bev %</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -326,12 +312,6 @@ export default function Dashboard() {
                         {salesVar > 0 ? '+' : ''}{formatExact(salesVar)}
                       </td>
                       <td className="px-4 py-4 text-center font-bold text-slate-600 text-xs">{row.currentTC.toLocaleString()}</td>
-                      <td className="px-4 py-4 text-center font-black text-purple-700 bg-purple-50/5 text-xs">RM {formatExact(row.beverages)}</td>
-                      <td className="px-4 py-4 text-center">
-                        <span className={`px-2 py-1 rounded text-[10px] font-black ${dailyBevPercent >= 10 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                          {dailyBevPercent.toFixed(1)}%
-                        </span>
-                      </td>
                     </tr>
                   );
                 })}
@@ -340,6 +320,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

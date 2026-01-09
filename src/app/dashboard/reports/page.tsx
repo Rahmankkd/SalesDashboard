@@ -263,7 +263,7 @@ export default function ReportsPage() {
                                     <th className="px-6 py-4 text-right">Target</th>
                                     <th className="px-6 py-4 text-right">Variance</th>
                                     <th className="px-6 py-4 text-center">TC</th>
-                                    <th className="px-6 py-4 text-right">Bev Sales</th>
+                                    <th className="px-6 py-4 text-right">Bev & Combo</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">

@@ -48,9 +48,9 @@ export function parseWhatsAppReport(text: string) {
         else if (line.includes('tc:') || line.includes('tc ')) {
             data.tc = extractNumber(line);
         }
-        // 6. Beverages
+        // 6. Beverages (Standard)
         else if (line.includes('beverages')) {
-            data.beverages = extractMoney(line);
+            data.beverages += extractMoney(line);
         }
         // 7. Delivery
         else if (line.includes('food panda') || line.includes('foodpanda')) {
@@ -61,6 +61,30 @@ export function parseWhatsAppReport(text: string) {
         }
         else if (line.includes('shopeefood') || line.includes('shopee')) {
             data.shopee_food = extractMoneyFromSlash(line);
+        }
+
+        // 8. COMBO & PROMO ITEMS (Sum into Beverages as per user request for "Beverage Combo")
+        // Keywords from user: Tincase, TNG, Chesse-Mas, Tumbler, Tiffin, Bottled, Supremo, Pac-Dots, Holiday Treats
+        // Also: Triple Dozen, Double Dozen, etc might be sales? No, usually separate.
+        // User said: "if you can see tincase combo until supreme combo... just extract the data"
+        else {
+            const lowerLine = line.toLowerCase();
+            if (
+                lowerLine.includes('combo') ||
+                lowerLine.includes('tincase') ||
+                lowerLine.includes('ala carte') ||
+                lowerLine.includes('blind box') ||
+                lowerLine.includes('pac-dots') ||
+                lowerLine.includes('holiday treats') ||
+                lowerLine.includes('supremo')
+            ) {
+                // Check if line has value (e.g., "1/RM148.02" or just "RM10")
+                const val = extractMoneyFromSlash(line);
+                if (val > 0) {
+                    console.log(`Creating Combo Log: Found ${val} in line: ${line}`);
+                    data.beverages += val; // MERGE INTO BEVERAGES
+                }
+            }
         }
     });
 
