@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --webpack",
-    "pages:build": "npx @opennextjs/cloudflare build && mkdir -p .open-next/assets/_next/static && cp -r .next/static/* .open-next/assets/_next/static/ && cp -r public/* .open-next/assets/ && cp -r .open-next/cloudflare .open-next/middleware .open-next/server-functions .open-next/.build .open-next/assets/ && cp .open-next/worker.js .open-next/assets/_worker.js && cp public/_routes.json .open-next/assets/_routes.json && ls -R .open-next/assets",
+    "pages:build": "npx @opennextjs/cloudflare build && mkdir -p .open-next/assets/_next/static && cp -r .next/static/* .open-next/assets/_next/static/ && cp -r public/* .open-next/assets/ && cp -r pwa-backup/* .open-next/assets/ && cp -r .open-next/cloudflare .open-next/middleware .open-next/server-functions .open-next/.build .open-next/assets/ && cp .open-next/worker.js .open-next/assets/_worker.js && cp public/_routes.json .open-next/assets/_routes.json && ls -R .open-next/assets",
     "start": "next start",
     "lint": "eslint"
   },
