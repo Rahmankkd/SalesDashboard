@@ -149,39 +149,43 @@ export default function ReportsPage() {
                 </div>
 
                 {/* --- FILTERS --- */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col xl:flex-row gap-6">
-                    {/* Date Range */}
-                    <div className="flex-1">
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    {/* Start Date */}
+                    <div>
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <Calendar size={14} /> Date Range
+                            <Calendar size={14} /> Start Date
                         </label>
-                        <div className="flex items-center gap-2">
-                            <input type="date" value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
-                            <span className="text-slate-300 font-bold">-</span>
-                            <input type="date" value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
-                        </div>
+                        <input type="date" value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none" />
                     </div>
 
-                    {/* Regions & Outlets */}
-                    <div className="flex-[2] flex flex-col md:flex-row gap-4">
-                        <div className="flex-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                <Filter size={14} /> Region
-                            </label>
-                            <select value={selectedRegion} onChange={(e) => { setSelectedRegion(e.target.value); setSelectedOutlet('All'); }} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
-                                <option value="All">All Regions</option>
-                                {Array.from(new Set(outlets.map(o => o.region))).map(r => (<option key={r} value={r}>{r}</option>))}
-                            </select>
-                        </div>
-                        <div className="flex-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                <Filter size={14} /> Outlet
-                            </label>
-                            <select value={selectedOutlet} onChange={(e) => setSelectedOutlet(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
-                                <option value="All">All Outlets</option>
-                                {outlets.filter(o => selectedRegion === 'All' || o.region === selectedRegion).map(o => (<option key={o.id} value={o.id}>{o.name}</option>))}
-                            </select>
-                        </div>
+                    {/* End Date */}
+                    <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <Calendar size={14} /> End Date
+                        </label>
+                        <input type="date" value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none" />
+                    </div>
+
+                    {/* Regions */}
+                    <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <Filter size={14} /> Region
+                        </label>
+                        <select value={selectedRegion} onChange={(e) => { setSelectedRegion(e.target.value); setSelectedOutlet('All'); }} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
+                            <option value="All">All Regions</option>
+                            {Array.from(new Set(outlets.map(o => o.region))).map(r => (<option key={r} value={r}>{r}</option>))}
+                        </select>
+                    </div>
+
+                    {/* Outlets */}
+                    <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <Filter size={14} /> Outlet
+                        </label>
+                        <select value={selectedOutlet} onChange={(e) => setSelectedOutlet(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
+                            <option value="All">All Outlets</option>
+                            {outlets.filter(o => selectedRegion === 'All' || o.region === selectedRegion).map(o => (<option key={o.id} value={o.id}>{o.name}</option>))}
+                        </select>
                     </div>
                 </div>
 
