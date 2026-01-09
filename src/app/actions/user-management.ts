@@ -46,8 +46,10 @@ const verifySuperuser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Unauthorized");
 
-    // Check Role
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    // Check Role using ADMIN client to bypass RLS policies
+    const adminSupabase = getAdminClient();
+    const { data: profile } = await adminSupabase.from('profiles').select('role').eq('id', user.id).single();
+
     if (profile?.role !== 'superuser') {
         throw new Error("Insufficient Permissions: Superuser Required");
     }
