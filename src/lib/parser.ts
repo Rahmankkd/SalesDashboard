@@ -3,7 +3,7 @@ export function parseWhatsAppReport(text: string) {
     const lines = lower.split('\n');
 
     const data = {
-        reportDate: null as string | null, // NEW FIELD
+        reportDate: null as string | null,
         sales: 0,
         target: 0,
         variance: 0,
@@ -12,7 +12,8 @@ export function parseWhatsAppReport(text: string) {
         beverages: 0,
         food_panda: 0,
         grab_food: 0,
-        shopee_food: 0
+        shopee_food: 0,
+        combo_details: {} as Record<string, number>
     };
 
     lines.forEach(line => {
@@ -63,10 +64,7 @@ export function parseWhatsAppReport(text: string) {
             data.shopee_food = extractMoneyFromSlash(line);
         }
 
-        // 8. COMBO & PROMO ITEMS (Sum into Beverages as per user request for "Beverage Combo")
-        // Keywords from user: Tincase, TNG, Chesse-Mas, Tumbler, Tiffin, Bottled, Supremo, Pac-Dots, Holiday Treats
-        // Also: Triple Dozen, Double Dozen, etc might be sales? No, usually separate.
-        // User said: "if you can see tincase combo until supreme combo... just extract the data"
+        // 8. COMBO & PROMO ITEMS
         else {
             const lowerLine = line.toLowerCase();
             if (
@@ -76,13 +74,43 @@ export function parseWhatsAppReport(text: string) {
                 lowerLine.includes('blind box') ||
                 lowerLine.includes('pac-dots') ||
                 lowerLine.includes('holiday treats') ||
-                lowerLine.includes('supremo')
+                lowerLine.includes('supremo') ||
+                lowerLine.includes('coffee deal') ||
+                lowerLine.includes('chiller') ||
+                lowerLine.includes('doughnut')
             ) {
-                // Check if line has value (e.g., "1/RM148.02" or just "RM10")
+                // 1. EXTRACT MONEY -> Merge into Beverages
                 const val = extractMoneyFromSlash(line);
                 if (val > 0) {
-                    console.log(`Creating Combo Log: Found ${val} in line: ${line}`);
-                    data.beverages += val; // MERGE INTO BEVERAGES
+                    data.beverages += val;
+                }
+
+                // 2. EXTRACT QUANTITY (PCS) -> sales_mtd & combo_details
+                // Logic: Look for number before '/' or after colon
+                let pcs = 0;
+                if (line.includes('/')) {
+                    const parts = line.split('/');
+                    const preSlash = parts[0];
+                    const match = preSlash.match(/[:\s](\d+)$/) || preSlash.match(/^(\d+)$/); // e.g. "Item: 1" or "1"
+                    if (match) pcs = parseInt(match[1]);
+                    else {
+                        const colMatch = preSlash.match(/:(\d+)$/);
+                        if (colMatch) pcs = parseInt(colMatch[1]);
+                    }
+                } else if (line.includes(':')) {
+                    const parts = line.split(':');
+                    const val = parseInt(parts[1].trim());
+                    if (!isNaN(val)) pcs = val;
+                }
+
+                if (pcs > 0) {
+                    data.sales_mtd += pcs; // Accumulate TOTAL PCS
+
+                    // Detailed JSON
+                    let key = line.split('/')[0].split(':')[0].trim();
+                    // Clean up key
+                    key = key.replace(/^\*+|\*+$/g, '').trim();
+                    data.combo_details[key] = (data.combo_details[key] || 0) + pcs;
                 }
             }
         }

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
+import { parseWhatsAppReport } from '@/lib/parser';
 
 
 // --- ICONS ---
@@ -108,89 +109,40 @@ export default function AdminPage() {
         if (uploadMode === 'Bulk') return;
         if (!rawText.trim()) { setIsDataValid(false); return; }
 
-        const cleanNum = (str: string | undefined) => {
-            if (!str) return 0;
-            return parseFloat(str.replace(/RM|rm|,|\s/gi, '')) || 0;
-        };
-
-        // AUDITED REGEX FOR BEVERAGES & NEW ITEMS (Case Insensitive)
-        const patterns = {
-            outlet: /\*([A-Z]{3})\*/,
-            date: /Date:\s*([\d\/]+)/i,
-            sales: /Total Net Sales:\s*(?:RM|rm)\s*([\d,.]+)/i,
-            target: /Daily Target:\s*(?:RM|rm)\s*([\d,.]+)/i,
-            tc: /TC:\s*(\d+)/i,
-            sales_mtd: /Sales MTD:\s*(?:RM|rm)\s*([\d,.]+)/i,
-            beverages: /Beverages \((?:RM|rm)\):(?:RM|rm)\s*([\d,.]+)/i,
-            food_panda: /Food Panda:\s*[\d-]+\/(?:RM|rm)\s*([\d,.]+)/i,
-            grab_food: /GrabFood:\s*[\d-]+\/(?:RM|rm)\s*([\d,.]+)/i,
-            shopee_food: /ShopeeFood:\s*[\d-]+\/(?:RM|rm)\s*([\d,.]+)/i,
-            // New Fields
-            event_sales: /Event Net Sales:\s*(?:RM|rm)\s*([\d,.]+)/i,
-            // Combos (Dynamic Extraction)
-            tincase_combo: /Tincase Combo:\s*([\d-]+)/i,
-            tincase_ala: /Tincase Ala Carte:\s*([\d-]+)/i,
-            tng_combo: /TNG Combo:\s*([\d-]+)/i,
-            blind_box: /Cheese-Mas Blind Box:\s*([\d-]+)/i,
-            tumbler: /KKD Tumbler Ala carte:\s*([\d-]+)/i,
-            tiffin: /Tiffin combo:\s*([\d-]+)/i
-        };
-
-        const outletMatch = rawText.match(patterns.outlet);
-        const dateMatch = rawText.match(patterns.date);
-        const salesMatch = rawText.match(patterns.sales);
-        const targetMatch = rawText.match(patterns.target);
-        const tcMatch = rawText.match(patterns.tc);
-        const mtdMatch = rawText.match(patterns.sales_mtd);
-        const bevMatch = rawText.match(patterns.beverages);
-        const fpMatch = rawText.match(patterns.food_panda);
-        const grabMatch = rawText.match(patterns.grab_food);
-        const shopeeMatch = rawText.match(patterns.shopee_food);
-        const eventMatch = rawText.match(patterns.event_sales);
-
-        // Combos
-        const combos: Record<string, number> = {};
-        const extractCombo = (key: string, match: RegExpMatchArray | null) => {
-            if (match && match[1] && match[1] !== '-') combos[key] = parseInt(match[1]);
-        };
-        extractCombo('Tincase Combo', rawText.match(patterns.tincase_combo));
-        extractCombo('Tincase Ala Carte', rawText.match(patterns.tincase_ala));
-        extractCombo('TNG Combo', rawText.match(patterns.tng_combo));
-        extractCombo('Cheese-Mas Blind Box', rawText.match(patterns.blind_box));
-        extractCombo('KKD Tumbler', rawText.match(patterns.tumbler));
-        extractCombo('Tiffin Combo', rawText.match(patterns.tiffin));
-
+        // 1. Extract Outlet Name (Not in shared parser yet)
+        const outletMatch = rawText.match(/\*([A-Z]{3})\*/);
         const detectedName = outletMatch ? outletMatch[1] : '';
         if (detectedName && outlets.length > 0) {
             const match = outlets.find(o => o.name === detectedName);
             if (match) setSelectedOutletId(match.id);
         }
 
-        let formattedDate = null;
+        // 2. Use Shared Parser
+        const data = parseWhatsAppReport(rawText);
+
+        // 3. Handle Date Override
+        let finalDate = data.reportDate;
         if (uploadMode === 'History' && manualDate) {
-            formattedDate = manualDate;
-        } else if (dateMatch) {
-            const [day, month, year] = dateMatch[1].split('/');
-            formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            finalDate = manualDate;
         }
 
         setParsedData({
             outletName: detectedName || 'Unknown',
-            reportDate: formattedDate,
-            sales: cleanNum(salesMatch?.[1]),
-            target: cleanNum(targetMatch?.[1]),
-            variance: cleanNum(salesMatch?.[1]) - cleanNum(targetMatch?.[1]),
-            tc: parseInt(tcMatch?.[1] || '0'),
-            sales_mtd: cleanNum(mtdMatch?.[1]),
-            beverages: cleanNum(bevMatch?.[1]),
-            food_panda: cleanNum(fpMatch?.[1]),
-            grab_food: cleanNum(grabMatch?.[1]),
-            shopee_food: cleanNum(shopeeMatch?.[1]),
-            event_sales: cleanNum(eventMatch?.[1]),
-            combos: combos
+            reportDate: finalDate,
+            sales: data.sales,
+            target: data.target,
+            variance: data.variance,
+            tc: data.tc,
+            sales_mtd: data.sales_mtd, // Now contains Combo PCS Count
+            beverages: data.beverages,
+            food_panda: data.food_panda,
+            grab_food: data.grab_food,
+            shopee_food: data.shopee_food,
+            event_sales: 0,
+            combos: data.combo_details // Detailed JSON
         });
 
-        setIsDataValid(!!salesMatch && (uploadMode === 'History' ? !!manualDate : !!dateMatch));
+        setIsDataValid(!!data.sales && (uploadMode === 'History' ? !!manualDate : !!finalDate));
     }, [rawText, outlets, uploadMode, manualDate]);
 
     const handleUpload = async () => {
@@ -234,11 +186,12 @@ export default function AdminPage() {
                     target: parsedData.target,
                     variance: parsedData.variance,
                     transaction_count: parsedData.tc,
-                    sales_mtd: parsedData.sales_mtd,
+                    sales_mtd: parsedData.sales_mtd, // Combo Count
                     beverages: parsedData.beverages,
                     food_panda: parsedData.food_panda,
                     grab_food: parsedData.grab_food,
-                    shopee_food: parsedData.shopee_food
+                    shopee_food: parsedData.shopee_food,
+                    combo_details: parsedData.combos // New JSONB Column (ensure column exists in DB)
                 };
 
                 const { error } = await supabase.from('sales_reports').upsert(payload, { onConflict: 'date, outlet_id' });
