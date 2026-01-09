@@ -297,45 +297,47 @@ export default function Dashboard() {
 
         {/* --- DETAILED TABLE --- */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[9px] tracking-wider border-b border-slate-100">
-              <tr>
-                <th className="px-6 py-4 border-r border-slate-50">Date Period</th>
-                <th className="px-4 py-4 text-right text-blue-700">Current Sales</th>
-                <th className="px-4 py-4 text-right text-amber-700">Last Year</th>
-                <th className="px-4 py-4 text-right border-r border-slate-50">Sales Var</th>
-                <th className="px-4 py-4 text-center font-black">TC</th>
-                <th className="px-4 py-4 text-center text-purple-700 bg-purple-50/30 font-bold">Bev Sales</th>
-                <th className="px-4 py-4 text-center font-black">Bev %</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredTableData.map((row, i) => {
-                const salesVar = row.current - row.comparison;
-                const dailyBevPercent = row.current > 0 ? (row.beverages / row.current) * 100 : 0;
-                return (
-                  <tr key={i} className={`transition-colors ${showLowBevOnly ? 'bg-orange-50/20' : 'hover:bg-slate-50'}`}>
-                    <td className="px-6 py-4 border-r border-slate-50">
-                      <p className="font-bold text-slate-800 text-xs">{row.label}</p>
-                      <p className="text-[9px] text-slate-400 font-medium">vs {row.compareDate}</p>
-                    </td>
-                    <td className="px-4 py-4 text-right font-black text-blue-700 text-xs">RM {formatExact(row.current)}</td>
-                    <td className="px-4 py-4 text-right font-black text-amber-600 text-xs">RM {formatExact(row.comparison)}</td>
-                    <td className={`px-4 py-4 text-right font-black border-r border-slate-50 text-xs ${salesVar < 0 ? 'text-red-500' : 'text-green-600'}`}>
-                      {salesVar > 0 ? '+' : ''}{formatExact(salesVar)}
-                    </td>
-                    <td className="px-4 py-4 text-center font-bold text-slate-600 text-xs">{row.currentTC.toLocaleString()}</td>
-                    <td className="px-4 py-4 text-center font-black text-purple-700 bg-purple-50/5 text-xs">RM {formatExact(row.beverages)}</td>
-                    <td className="px-4 py-4 text-center">
-                      <span className={`px-2 py-1 rounded text-[10px] font-black ${dailyBevPercent >= 10 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                        {dailyBevPercent.toFixed(1)}%
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[9px] tracking-wider border-b border-slate-100">
+                <tr>
+                  <th className="px-6 py-4 border-r border-slate-50">Date Period</th>
+                  <th className="px-4 py-4 text-right text-blue-700">Current Sales</th>
+                  <th className="px-4 py-4 text-right text-amber-700">Last Year</th>
+                  <th className="px-4 py-4 text-right border-r border-slate-50">Sales Var</th>
+                  <th className="px-4 py-4 text-center font-black">TC</th>
+                  <th className="px-4 py-4 text-center text-purple-700 bg-purple-50/30 font-bold">Bev Sales</th>
+                  <th className="px-4 py-4 text-center font-black">Bev %</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredTableData.map((row, i) => {
+                  const salesVar = row.current - row.comparison;
+                  const dailyBevPercent = row.current > 0 ? (row.beverages / row.current) * 100 : 0;
+                  return (
+                    <tr key={i} className={`transition-colors ${showLowBevOnly ? 'bg-orange-50/20' : 'hover:bg-slate-50'}`}>
+                      <td className="px-6 py-4 border-r border-slate-50">
+                        <p className="font-bold text-slate-800 text-xs">{row.label}</p>
+                        <p className="text-[9px] text-slate-400 font-medium">vs {row.compareDate}</p>
+                      </td>
+                      <td className="px-4 py-4 text-right font-black text-blue-700 text-xs">RM {formatExact(row.current)}</td>
+                      <td className="px-4 py-4 text-right font-black text-amber-600 text-xs">RM {formatExact(row.comparison)}</td>
+                      <td className={`px-4 py-4 text-right font-black border-r border-slate-50 text-xs ${salesVar < 0 ? 'text-red-500' : 'text-green-600'}`}>
+                        {salesVar > 0 ? '+' : ''}{formatExact(salesVar)}
+                      </td>
+                      <td className="px-4 py-4 text-center font-bold text-slate-600 text-xs">{row.currentTC.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-center font-black text-purple-700 bg-purple-50/5 text-xs">RM {formatExact(row.beverages)}</td>
+                      <td className="px-4 py-4 text-center">
+                        <span className={`px-2 py-1 rounded text-[10px] font-black ${dailyBevPercent >= 10 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                          {dailyBevPercent.toFixed(1)}%
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
