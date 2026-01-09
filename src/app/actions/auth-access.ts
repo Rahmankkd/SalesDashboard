@@ -42,23 +42,17 @@ async function getAuthUser() {
 // --- PUBLIC ACTIONS ---
 
 export async function getUserRole() {
-    const cookieStore = await cookies();
-    const authClient = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value },
-            }
-        }
-    );
-
-    const { data: { user } } = await authClient.auth.getUser();
+    const user = await getAuthUser();
     if (!user) return null;
 
-    // Use Auth Client to Fetch Role (Respects RLS - "Users can read own profile")
-    // This avoids crashing if SUPABASE_SERVICE_ROLE_KEY is missing in Cloudflare
-    const { data, error } = await authClient
+    const adminSupabase = getAdminClient();
+    if (!adminSupabase) {
+        console.error("getUserRole: Missing Admin Client");
+        return 'user';
+    }
+
+    // Use Admin Client to Fetch Role (No Recursion Risk, Bypasses RLS)
+    const { data, error } = await adminSupabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
