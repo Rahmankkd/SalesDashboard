@@ -145,17 +145,43 @@ export default function SuperuserPage() {
             </aside>
 
             {/* --- MAIN CONTENT --- */}
-            <main className="flex-1 p-10 overflow-y-auto">
-                <header className="flex justify-between items-center mb-10">
-                    <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight uppercase">
-                        {activeTab === 'Users' && 'User Management'}
-                        {activeTab === 'Outlets' && 'Store Operations'}
-                        {activeTab === 'Data' && 'Data Maintenance'}
-                    </h2>
+            <main className="flex-1 p-4 md:p-10 overflow-y-auto">
+                <header className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-10 gap-4">
+                    <div className="flex items-center justify-between w-full md:w-auto">
+                        <h2 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight uppercase">
+                            {activeTab === 'Users' && 'User Management'}
+                            {activeTab === 'Outlets' && 'Store Operations'}
+                            {activeTab === 'Data' && 'Data Maintenance'}
+                        </h2>
 
-                    {/* ADD USER BUTTON (Only on Users Tab) */}
+                        {/* Mobile Add User Button (Small) */}
+                        {activeTab === 'Users' && isSuperuser && (
+                            <button onClick={() => setShowAddUser(true)} className="md:hidden p-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-500">
+                                <IconPlus />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* MOBILE NAVIGATION TABS */}
+                    <div className="flex md:hidden w-full overflow-x-auto pb-2 gap-2 border-b border-gray-100 no-scrollbar">
+                        {isSuperuser && (
+                            <button onClick={() => setActiveTab('Users')} className={`shrink-0 px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'Users' ? 'bg-green-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-gray-100'}`}>
+                                Users
+                            </button>
+                        )}
+                        <button onClick={() => setActiveTab('Outlets')} className={`shrink-0 px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'Outlets' ? 'bg-green-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-gray-100'}`}>
+                            Stores
+                        </button>
+                        {isSuperuser && (
+                            <button onClick={() => setActiveTab('Data')} className={`shrink-0 px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'Data' ? 'bg-green-600 text-white shadow-lg' : 'bg-white text-slate-500 border border-gray-100'}`}>
+                                Data
+                            </button>
+                        )}
+                    </div>
+
+                    {/* DESKTOP ADD USER BUTTON */}
                     {activeTab === 'Users' && isSuperuser && (
-                        <button onClick={() => setShowAddUser(true)} className="px-6 py-3 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-600/20 hover:bg-green-500 transition-all flex items-center gap-2">
+                        <button onClick={() => setShowAddUser(true)} className="hidden md:flex px-6 py-3 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-600/20 hover:bg-green-500 transition-all items-center gap-2">
                             <IconPlus /> Add User
                         </button>
                     )}
@@ -195,7 +221,7 @@ export default function SuperuserPage() {
                             </div>
                         )}
 
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto">
                             <table className="w-full text-left text-sm">
                                 <thead className="bg-gray-50/50 border-b border-gray-100 font-bold text-slate-700">
                                     <tr>
@@ -249,7 +275,7 @@ export default function SuperuserPage() {
                         </div>
 
                         {/* Table */}
-                        <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto">
                             <table className="w-full text-left text-sm">
                                 <thead className="bg-gray-50/50 border-b border-gray-100">
                                     <tr>
@@ -289,7 +315,7 @@ export default function SuperuserPage() {
                 )}
 
                 {activeTab === 'Data' && isSuperuser && (
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-gray-50/50 border-b border-gray-100 font-bold">
                                 <tr><th className="px-8 py-5">Date</th><th className="px-6 py-5">Outlet</th><th className="px-6 py-5 font-bold">Sales</th><th className="px-6 py-5 text-right">Action</th></tr>
