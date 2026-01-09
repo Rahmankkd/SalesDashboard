@@ -10,6 +10,7 @@ const IconCalendar = () => <svg className="w-4 h-4" fill="none" stroke="currentC
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 const IconUsers = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>;
 const IconBeaker = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>;
+import { DateRangePicker } from '@/components/ui/DateRangePicker';
 
 export default function Dashboard() {
   const supabase = createBrowserClient(
@@ -165,26 +166,28 @@ export default function Dashboard() {
 
         {/* --- FILTERS (Now including Low Bev toggle) --- */}
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8 flex flex-col xl:flex-row gap-6">
-          <div className="flex-1">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><IconCalendar /> Current Period</p>
-            <div className="flex items-center gap-2">
-              <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
-              <span className="text-slate-300 font-bold">-</span>
-              <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
-            </div>
+          <div className="md:col-span-1">
+            <DateRangePicker
+              label="Current Period"
+              startDate={dateRange.start}
+              endDate={dateRange.end}
+              onChange={(range) => setDateRange({ start: range.start, end: range.end || range.start })}
+            />
           </div>
 
-          <div className={`flex-1 transition-opacity ${!isManualCompare ? 'opacity-50' : 'opacity-100'}`}>
-            <div className="flex justify-between items-center mb-3">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><IconCalendar /> Last Year Period</p>
-              <button onClick={() => setIsManualCompare(!isManualCompare)} className="text-[9px] font-black uppercase text-amber-700 bg-amber-50 px-2 py-1 rounded hover:bg-amber-100 transition-colors">
-                {isManualCompare ? 'Manual' : 'Auto'}
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="date" disabled={!isManualCompare} value={isManualCompare ? compareRange.start : ""} onChange={(e) => setCompareRange({ ...compareRange, start: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
-              <span className="text-slate-300 font-bold">-</span>
-              <input type="date" disabled={!isManualCompare} value={isManualCompare ? compareRange.end : ""} onChange={(e) => setCompareRange({ ...compareRange, end: e.target.value })} className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none flex-1" />
+          <div className={`md:col-span-1 transition-opacity ${!isManualCompare ? 'opacity-50' : 'opacity-100'}`}>
+            <div className="relative">
+              <div className="flex justify-between items-center mb-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><IconCalendar /> Last Year</label>
+                <button onClick={() => setIsManualCompare(!isManualCompare)} className="text-[9px] font-black uppercase text-amber-700 bg-amber-50 px-2 py-1 rounded hover:bg-amber-100 transition-colors">
+                  {isManualCompare ? 'Manual' : 'Auto'}
+                </button>
+              </div>
+              <DateRangePicker
+                startDate={compareRange.start}
+                endDate={compareRange.end}
+                onChange={(range) => setCompareRange({ start: range.start, end: range.end || range.start })}
+              />
             </div>
           </div>
 

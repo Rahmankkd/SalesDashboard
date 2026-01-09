@@ -7,6 +7,7 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { Download, Filter, Calendar } from 'lucide-react';
+import { DateRangePicker } from '@/components/ui/DateRangePicker';
 
 // COLORS for Charts
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
@@ -149,7 +150,7 @@ export default function ReportsPage() {
                 </div>
 
                 {/* --- FILTERS --- */}
-                import {DateRangePicker} from '@/components/ui/DateRangePicker';
+                {/* --- FILTERS --- */}
                 // ... inside component ...
 
                 {/* --- FILTERS --- */}
