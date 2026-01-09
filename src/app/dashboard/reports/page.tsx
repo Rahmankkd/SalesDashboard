@@ -253,12 +253,16 @@ export default function ReportsPage() {
                     <h3 className="text-sm font-bold text-slate-900 mb-6">Top Outlets (Beverages)</h3>
                     <div className="flex-1 w-full">
                         <ResponsiveContainer width="100%" height={500}>
-                            <BarChart data={rankingData} layout="vertical" margin={{ left: 20, right: 20, top: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
+                            <BarChart data={rankingData} layout="vertical" margin={{ left: 0, right: 20, top: 0, bottom: 0 }}>
+                                <CartesianGrid horizontal={false} stroke="#E2E8F0" />
                                 <XAxis type="number" hide />
-                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fontWeight: 600, fill: '#1E293B' }} axisLine={false} tickLine={false} />
-                                <Tooltip cursor={{ fill: '#F1F5F9' }} formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Bev Sales']} />
-                                <Bar dataKey="sales" fill="#8B5CF6" radius={[0, 4, 4, 0]} barSize={20} />
+                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', fontSize: '10px' }} formatter={(val: any) => [`RM ${Number(val).toLocaleString()}`, 'Bev Sales']} />
+                                <Bar dataKey="sales" radius={[0, 4, 4, 0]} barSize={24} background={{ fill: '#F1F5F9' }}>
+                                    {rankingData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#8B5CF6'} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
