@@ -212,7 +212,7 @@ export default function AdminPage() {
         <div className="bg-slate-950 min-h-screen p-4 md:p-8">
             <div className="max-w-[1600px] mx-auto space-y-8">
                 {/* HEADER */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end pb-6 border-b border-white/10">
+                <div className="md:flex md:justify-between md:items-end pb-6 border-b border-white/10">
                     <div>
                         <h1 className="text-4xl font-black text-white tracking-tight">Admin <span className="text-blue-500">Panel</span></h1>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Daily Sales Ingestion System</p>
