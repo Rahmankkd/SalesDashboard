@@ -149,29 +149,41 @@ export default function ReportsPage() {
                 </div>
 
                 {/* --- FILTERS --- */}
+                import {DateRangePicker} from '@/components/ui/DateRangePicker';
+                // ... inside component ...
+
+                {/* --- FILTERS --- */}
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                    {/* Start Date */}
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <Calendar size={14} /> Start Date
-                        </label>
-                        <input type="date" value={dateRange.start} onChange={e => setDateRange({ ...dateRange, start: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none" />
+                    {/* Date Range - Now Single Component taking 2 cols or 1 col depending on need, actually let's keep grid 4 but span 2 if we want, or just stick to 1 slot. 
+                       Wait, the user wants "just 1 box". So I will put it in the first slot.
+                    */}
+                    <div className="md:col-span-1">
+                        <DateRangePicker
+                            label="Date Range"
+                            startDate={dateRange.start}
+                            endDate={dateRange.end}
+                            onChange={(range) => setDateRange({ start: range.start, end: range.end || range.start })}
+                        />
                     </div>
 
-                    {/* End Date */}
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <Calendar size={14} /> End Date
-                        </label>
-                        <input type="date" value={dateRange.end} onChange={e => setDateRange({ ...dateRange, end: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none" />
-                    </div>
+                    {/* Placeholder to keep alignment or span?
+                        If I remove one box, I have 3 items. 
+                        Grid cols: 1 (mob), 2 (md), 4 (xl).
+                        If I have 3 items:
+                        - XL: 3 items in a 4-col grid -> one empty slot.
+                        - MD: 3 items in a 2-col grid -> last item on new row.
+                        
+                        I should probably combine Region/Outlet or just let DateRangePicker span 2 cols on XL to make it look prominent?
+                        Or just leave it as 3 items. User said "same as region box".
+                        I'll just remove the second date box.
+                     */}
 
                     {/* Regions */}
                     <div>
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                             <Filter size={14} /> Region
                         </label>
-                        <select value={selectedRegion} onChange={(e) => { setSelectedRegion(e.target.value); setSelectedOutlet('All'); }} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
+                        <select value={selectedRegion} onChange={(e) => { setSelectedRegion(e.target.value); setSelectedOutlet('All'); }} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none h-[46px]">
                             <option value="All">All Regions</option>
                             {Array.from(new Set(outlets.map(o => o.region))).map(r => (<option key={r} value={r}>{r}</option>))}
                         </select>
@@ -182,7 +194,7 @@ export default function ReportsPage() {
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                             <Filter size={14} /> Outlet
                         </label>
-                        <select value={selectedOutlet} onChange={(e) => setSelectedOutlet(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
+                        <select value={selectedOutlet} onChange={(e) => setSelectedOutlet(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none h-[46px]">
                             <option value="All">All Outlets</option>
                             {outlets.filter(o => selectedRegion === 'All' || o.region === selectedRegion).map(o => (<option key={o.id} value={o.id}>{o.name}</option>))}
                         </select>
