@@ -141,7 +141,7 @@ export default function ReportsPage() {
                 {/* --- HEADER --- */}
                 <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Sales <span className="text-blue-600">Reports</span></h1>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Beverages & <span className="text-blue-600">Combo</span></h1>
                         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Deep Dive Analytics</p>
                     </div>
                     <button onClick={downloadCSV} className="flex items-center gap-2 bg-slate-900 text-white px-5 py-3 rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-all">
@@ -236,7 +236,7 @@ export default function ReportsPage() {
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px]">
                     <h3 className="text-sm font-bold text-slate-900 mb-6">Top Outlets (Beverages)</h3>
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={rankingData} layout="vertical" margin={{ left: 40, right: 40 }}>
+                        <BarChart data={rankingData} layout="vertical" margin={{ left: 20, right: 20 }}>
                             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
                             <XAxis type="number" hide />
                             <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fontWeight: 600, fill: '#1E293B' }} axisLine={false} tickLine={false} />

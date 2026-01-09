@@ -159,7 +159,7 @@ export default function Dashboard() {
 
         {/* --- MAIN HEADER --- */}
         <div className="mb-8">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Daily <span className="text-green-600">Sales</span></h1>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Sales <span className="text-green-600">Performance</span></h1>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Regional Performance Overview</p>
         </div>
 
