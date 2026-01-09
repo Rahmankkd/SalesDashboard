@@ -94,6 +94,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
                 {/* 3. RIGHT: USER & LOGOUT */}
                 <div className="flex items-center gap-4">
+                    {/* INSTALL APP BUTTON (Visible only if installable) */}
+                    <InstallButton />
+
                     {/* Role Badge */}
                     <div className="hidden md:flex flex-col items-end">
                         <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Signed in as</span>
@@ -122,6 +125,41 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
             </main>
         </>
+    );
+}
+
+// --- HELPER COMPONENT FOR INSTALL BUTTON ---
+function InstallButton() {
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+    useEffect(() => {
+        const handler = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstall = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setDeferredPrompt(null);
+        }
+    };
+
+    if (!deferredPrompt) return null;
+
+    return (
+        <button
+            onClick={handleInstall}
+            className="flex items-center gap-2 px-3 py-2 bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white rounded-lg text-xs font-bold transition-all border border-green-500/30 animate-pulse"
+        >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            <span className="hidden sm:inline">Install App</span>
+        </button>
     );
 }
 
