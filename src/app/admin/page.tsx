@@ -256,7 +256,7 @@ export default function AdminPage() {
     };
 
     return (
-        <div className="bg-slate-950 min-h-screen p-8">
+        <div className="bg-slate-950 min-h-screen p-4 md:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row justify-between items-end pb-6 border-b border-white/10">
@@ -270,11 +270,11 @@ export default function AdminPage() {
                         <p className="text-slate-400 text-sm font-medium">Daily Sales Ingestion System</p>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
-                        <div className="bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-lg flex">
-                            <button onClick={() => setUploadMode('Current')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${uploadMode === 'Current' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><IconUpload /> Current</button>
-                            <button onClick={() => setUploadMode('History')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${uploadMode === 'History' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><IconHistory /> History</button>
-                            <button onClick={() => setUploadMode('Bulk')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${uploadMode === 'Bulk' ? 'bg-green-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><IconCsv /> Bulk CSV</button>
+                    <div className="flex flex-col w-full md:w-auto md:items-end gap-2 mt-4 md:mt-0">
+                        <div className="bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-lg flex w-full md:w-auto overflow-x-auto">
+                            <button onClick={() => setUploadMode('Current')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${uploadMode === 'Current' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><IconUpload /> Current</button>
+                            <button onClick={() => setUploadMode('History')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${uploadMode === 'History' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><IconHistory /> History</button>
+                            <button onClick={() => setUploadMode('Bulk')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${uploadMode === 'Bulk' ? 'bg-green-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}><IconCsv /> Bulk CSV</button>
                         </div>
                         {/* MISSING REPORTS CHECK */}
                         <div className="flex items-center gap-2">
@@ -283,7 +283,7 @@ export default function AdminPage() {
                                 {outlets.filter(o => !recentReports.some(r => r.outlet_id === o.id && new Date(r.date).toDateString() === new Date().toDateString())).length === 0
                                     ? <span className="text-green-500 text-xs font-bold">All Clear!</span>
                                     : outlets.filter(o => !recentReports.some(r => r.outlet_id === o.id && new Date(r.date).toDateString() === new Date().toDateString())).map(o => (
-                                        <span key={o.id} className="w-6 h-6 rounded-full bg-red-900/80 border border-red-500 flex items-center justify-center text-[10px] text-red-200 font-bold" title={o.name}>{o.name.substring(0, 2)}</span>
+                                        <span key={o.id} className="w-6 h-6 rounded-full bg-red-900/80 border border-red-500 flex items-center justify-center text-[10px] text-red-200 font-bold shrink-0" title={o.name}>{o.name.substring(0, 2)}</span>
                                     ))
                                 }
                             </div>
