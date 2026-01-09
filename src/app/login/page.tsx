@@ -45,8 +45,8 @@ export default function LoginPage() {
                     <div className="w-20 h-20 bg-green-600 rounded-2xl mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(22,163,74,0.6)] mb-6 transform rotate-3 hover:rotate-0 transition-all duration-500">
                         <span className="text-4xl font-extrabold text-white font-mono">KK</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Admin Portal</h1>
-                    <p className="text-slate-400 text-sm mt-2">Secure Gateway for Superusers</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Sales Portal</h1>
+                    <p className="text-slate-400 text-sm mt-2">REGIONAL SALES PERFORMANCE</p>
                 </div>
 
                 {/* ERROR MESSAGE */}
@@ -66,7 +66,7 @@ export default function LoginPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-medium"
-                            placeholder="manager@krispykreme.com"
+                            placeholder="email"
                         />
                     </div>
                     <div>
@@ -90,8 +90,9 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                <div className="mt-8 text-center">
+                <div className="mt-8 text-center flex flex-col gap-1">
                     <p className="text-xs text-slate-500">Authorized Personnel Only</p>
+                    <p className="text-[10px] text-slate-600 font-mono">v1.1 (PWA Enabled)</p>
                 </div>
             </div>
         </div>
