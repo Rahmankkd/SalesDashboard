@@ -27,11 +27,17 @@ export default function AdminPage() {
     const [selectedOutletId, setSelectedOutletId] = useState('');
     const [isDataValid, setIsDataValid] = useState(false);
     const [recentReports, setRecentReports] = useState<any[]>([]);
+    const [todaysReports, setTodaysReports] = useState<any[]>([]);
+    const [showVarianceModal, setShowVarianceModal] = useState(false);
+    const [varianceResolved, setVarianceResolved] = useState(false);
 
     const [parsedData, setParsedData] = useState({
         outletName: '',
         reportDate: null as string | null,
-        sales: 0,
+        sales: 0,              // Total Net Sales (reported)
+        daily_net_sales: 0,    // Daily Net Sales
+        event_sales: 0,        // Event Net Sales
+        bulk_sales: 0,         // Bulk Net Sales
         target: 0,
         variance: 0,
         tc: 0,
@@ -40,14 +46,13 @@ export default function AdminPage() {
         food_panda: 0,
         grab_food: 0,
         shopee_food: 0,
-        // New Fields
-        event_sales: 0,
         combos: {} as Record<string, number>
     });
 
     useEffect(() => {
         fetchOutlets();
         fetchRecentReports();
+        fetchTodaysReports();
     }, []);
 
     const fetchOutlets = async () => {
@@ -62,6 +67,26 @@ export default function AdminPage() {
             .order('date', { ascending: false })
             .limit(10);
         if (data) setRecentReports(data);
+    };
+
+    const fetchTodaysReports = async () => {
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+
+        const { data } = await supabase
+            .from('sales_reports')
+            .select('outlet_id, date')
+            .gte('date', `${todayStr}T00:00:00`)
+            .lt('date', `${todayStr}T23:59:59`);
+
+        console.log('fetchTodaysReports - Query for date:', todayStr);
+        console.log('fetchTodaysReports - Found reports:', data);
+
+        if (data) setTodaysReports(data);
     };
 
     const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +154,10 @@ export default function AdminPage() {
         setParsedData({
             outletName: detectedName || 'Unknown',
             reportDate: finalDate,
-            sales: data.sales,
+            sales: data.sales,              // Total Net Sales (reported)
+            daily_net_sales: data.daily_net_sales,
+            event_sales: data.event_sales,
+            bulk_sales: data.bulk_sales,
             target: data.target,
             variance: data.variance,
             tc: data.tc,
@@ -138,16 +166,36 @@ export default function AdminPage() {
             food_panda: data.food_panda,
             grab_food: data.grab_food,
             shopee_food: data.shopee_food,
-            event_sales: 0,
             combos: data.combo_details // Detailed JSON
         });
 
+
         setIsDataValid(!!data.sales && (uploadMode === 'History' ? !!manualDate : !!finalDate));
+
+        // Check for variance and reset resolution state when data changes
+        const calculated = data.daily_net_sales + data.event_sales + data.bulk_sales;
+        const variance = data.sales - calculated;
+        const hasVariance = Math.abs(variance) > 0.01;
+
+        if (hasVariance !== showVarianceModal) {
+            setShowVarianceModal(hasVariance);
+            setVarianceResolved(false); // Reset resolution state when new variance detected
+        }
     }, [rawText, outlets, uploadMode, manualDate]);
 
     const handleUpload = async () => {
         if (!isDataValid && uploadMode !== 'Bulk') {
             alert("Please check data. Sales amount or Date is missing.");
+            return;
+        }
+
+        // Check if variance exists and not resolved
+        const calculated = parsedData.daily_net_sales + parsedData.event_sales + parsedData.bulk_sales;
+        const variance = parsedData.sales - calculated;
+        const hasVariance = Math.abs(variance) > 0.01;
+
+        if (hasVariance && !varianceResolved) {
+            alert("⚠️ Please resolve the sales variance before uploading.");
             return;
         }
 
@@ -201,6 +249,7 @@ export default function AdminPage() {
                 if (uploadMode === 'Current') setRawText('');
             }
             fetchRecentReports();
+            fetchTodaysReports();
         } catch (err: any) {
             alert("Error: " + err.message);
         } finally {
@@ -210,6 +259,70 @@ export default function AdminPage() {
 
     return (
         <div className="bg-slate-950 min-h-screen p-4 md:p-8">
+            {/* VARIANCE RESOLUTION MODAL */}
+            {showVarianceModal && !varianceResolved && uploadMode !== 'Bulk' && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-slate-900 border-2 border-red-500/50 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+                        <div className="text-center mb-6">
+                            <div className="text-6xl mb-4">⚠️</div>
+                            <h2 className="text-2xl font-black text-white mb-2">Sales Variance Detected</h2>
+                            <p className="text-slate-400 text-sm">The calculated total doesn't match the reported total. Which value is correct?</p>
+                        </div>
+
+                        {(() => {
+                            const calculated = parsedData.daily_net_sales + parsedData.event_sales + parsedData.bulk_sales;
+                            const reported = parsedData.sales;
+                            const variance = reported - calculated;
+
+                            const handleChoice = (useCalculated: boolean) => {
+                                setParsedData(prev => ({
+                                    ...prev,
+                                    sales: useCalculated ? calculated : reported
+                                }));
+                                setVarianceResolved(true);
+                                setShowVarianceModal(false);
+                            };
+
+                            return (
+                                <>
+                                    <div className="bg-slate-950/50 rounded-xl p-4 mb-6 space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-400">Daily + Event + Bulk</span>
+                                            <span className="font-mono text-blue-400 font-bold">RM {calculated.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-400">Total Net Sales (Reported)</span>
+                                            <span className="font-mono text-green-400 font-bold">RM {reported.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm border-t border-red-500/30 pt-2">
+                                            <span className="text-red-400 font-bold">Variance</span>
+                                            <span className="font-mono text-red-400 font-bold">{variance > 0 ? '+' : ''}RM {variance.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={() => handleChoice(true)}
+                                            className="w-full py-4 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all shadow-lg flex items-center justify-between"
+                                        >
+                                            <span>Use Calculated Total</span>
+                                            <span className="font-mono">RM {calculated.toLocaleString()}</span>
+                                        </button>
+                                        <button
+                                            onClick={() => handleChoice(false)}
+                                            className="w-full py-4 px-6 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-sm transition-all shadow-lg flex items-center justify-between"
+                                        >
+                                            <span>Use Reported Total</span>
+                                            <span className="font-mono">RM {reported.toLocaleString()}</span>
+                                        </button>
+                                    </div>
+                                </>
+                            );
+                        })()}
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-[1600px] mx-auto space-y-8">
                 {/* HEADER */}
                 <div className="md:flex md:justify-between md:items-end pb-6 border-b border-white/10">
@@ -228,9 +341,9 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold uppercase text-slate-500">Missing Today:</span>
                             <div className="flex -space-x-2">
-                                {outlets.filter(o => !recentReports.some(r => r.outlet_id === o.id && new Date(r.date).toDateString() === new Date().toDateString())).length === 0
+                                {outlets.filter(o => !todaysReports.some(r => r.outlet_id === o.id)).length === 0
                                     ? <span className="text-green-500 text-xs font-bold">All Clear!</span>
-                                    : outlets.filter(o => !recentReports.some(r => r.outlet_id === o.id && new Date(r.date).toDateString() === new Date().toDateString())).map(o => (
+                                    : outlets.filter(o => !todaysReports.some(r => r.outlet_id === o.id)).map(o => (
                                         <span key={o.id} className="w-6 h-6 rounded-full bg-red-900/80 border border-red-500 flex items-center justify-center text-[10px] text-red-200 font-bold shrink-0" title={o.name}>{o.name.substring(0, 2)}</span>
                                     ))
                                 }
@@ -281,9 +394,41 @@ export default function AdminPage() {
 
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between"><span className="text-slate-400 text-xs">Date</span> <span className="font-mono text-white font-bold">{parsedData.reportDate || '-'}</span></div>
-                                <div className="flex justify-between"><span className="text-slate-400 text-xs">Sales</span> <span className="font-mono text-green-400 font-bold">RM {parsedData.sales.toLocaleString()}</span></div>
+
+                                {(() => {
+                                    const calculated = parsedData.daily_net_sales + parsedData.event_sales + parsedData.bulk_sales;
+                                    const reported = parsedData.sales;
+                                    const variance = reported - calculated;
+                                    const hasVariance = Math.abs(variance) > 0.01;
+
+                                    return (
+                                        <>
+                                            {/* Sales Breakdown */}
+                                            <div className="border-t border-white/10 pt-3">
+                                                <div className="flex justify-between text-[10px] mb-1"><span className="text-slate-500 uppercase">Daily Net Sales</span> <span className="font-mono text-slate-300">RM {parsedData.daily_net_sales.toLocaleString()}</span></div>
+                                                <div className="flex justify-between text-[10px] mb-1"><span className="text-slate-500 uppercase">Event Net Sales</span> <span className="font-mono text-slate-300">RM {parsedData.event_sales.toLocaleString()}</span></div>
+                                                <div className="flex justify-between text-[10px] mb-2"><span className="text-slate-500 uppercase">Bulk Net Sales</span> <span className="font-mono text-slate-300">RM {parsedData.bulk_sales.toLocaleString()}</span></div>
+                                                <div className="flex justify-between border-t border-white/5 pt-2"><span className="text-slate-400 text-xs font-bold">Calculated Total</span> <span className="font-mono text-blue-400 font-bold">RM {calculated.toLocaleString()}</span></div>
+                                            </div>
+
+                                            {/* Total & Variance Check */}
+                                            <div className={`border ${hasVariance ? 'border-red-500/30 bg-red-900/20' : 'border-white/10'} rounded-xl p-3`}>
+                                                <div className="flex justify-between mb-1"><span className="text-slate-400 text-xs">Total Net Sales (Reported)</span> <span className="font-mono text-green-400 font-bold">RM {reported.toLocaleString()}</span></div>
+                                                {hasVariance && (
+                                                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-red-500/30">
+                                                        <span className="text-red-400 text-xl">⚠️</span>
+                                                        <div className="flex-1">
+                                                            <p className="text-red-400 text-[10px] font-bold uppercase">Variance Detected</p>
+                                                            <p className="text-red-300 text-xs font-mono">{variance > 0 ? '+' : ''}RM {variance.toFixed(2)}</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+
                                 <div className="flex justify-between"><span className="text-slate-400 text-xs">Beverages</span> <span className="font-mono text-purple-400 font-bold">RM {parsedData.beverages.toLocaleString()}</span></div>
-                                <div className="flex justify-between"><span className="text-slate-400 text-xs">Events</span> <span className="font-mono text-yellow-400 font-bold">RM {parsedData.event_sales.toLocaleString()}</span></div>
                                 {Object.entries(parsedData.combos).map(([k, v]) => (
                                     <div key={k} className="flex justify-between"><span className="text-slate-400 text-xs">{k}</span> <span className="font-mono text-blue-300 font-bold">{v}</span></div>
                                 ))}

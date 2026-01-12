@@ -4,7 +4,10 @@ export function parseWhatsAppReport(text: string) {
 
     const data = {
         reportDate: null as string | null,
-        sales: 0,
+        sales: 0,              // Total Net Sales
+        daily_net_sales: 0,    // Daily Net Sales
+        event_sales: 0,        // Event Net Sales
+        bulk_sales: 0,         // Bulk Net Sales
         target: 0,
         variance: 0,
         tc: 0,
@@ -28,8 +31,22 @@ export function parseWhatsAppReport(text: string) {
             }
         }
 
-        // 1. Daily Sales
-        else if ((line.includes('total net sales') || line.includes('daily net sales')) && !line.includes('mtd')) {
+
+        // 1. Sales Fields (prioritize specific over generic)
+        // Daily Net Sales
+        else if (line.includes('daily net sales')) {
+            data.daily_net_sales = extractMoney(line);
+        }
+        // Event Net Sales
+        else if (line.includes('event net sales') || (line.includes('event') && line.includes('sales'))) {
+            data.event_sales = extractMoney(line);
+        }
+        // Bulk Net Sales
+        else if (line.includes('bulk net sales') || line.includes('bulk sales')) {
+            data.bulk_sales = extractMoney(line);
+        }
+        // Total Net Sales (fallback - must come after specific checks)
+        else if ((line.includes('total net sales') || line.includes('net sales')) && !line.includes('mtd')) {
             data.sales = extractMoney(line);
         }
         // 2. Target

@@ -224,7 +224,7 @@ export default function ReportsPage() {
                     {/* PIE CHART */}
                     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm min-h-[400px] flex flex-col">
                         <h3 className="text-sm font-bold text-slate-900 mb-2">Bev Sales by Region</h3>
-                        <div className="flex-1">
+                        <div className="flex-1 min-h-[280px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie

@@ -229,7 +229,7 @@ export default function Dashboard() {
           {/* --- TOP PERFORMERS (New) --- */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col group">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">Top Outlets</p>
-            <div className="flex-1 min-h-[100px]">
+            <div className="flex-1 min-h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topOutlets} layout="vertical" margin={{ left: 0, right: 20, top: 0, bottom: 0 }}>
                   <XAxis type="number" hide />
