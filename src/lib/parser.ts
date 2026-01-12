@@ -49,9 +49,9 @@ export function parseWhatsAppReport(text: string) {
         else if (line.includes('tc:') || line.includes('tc ')) {
             data.tc = extractNumber(line);
         }
-        // 6. Beverages (Standard)
+        // 6. Beverages (Standard format: "Beverages (RM) RM 93.76/RM200")
         else if (line.includes('beverages')) {
-            data.beverages += extractMoney(line);
+            data.beverages += extractMoneyBeforeSlash(line);
         }
         // 7. Delivery
         else if (line.includes('food panda') || line.includes('foodpanda')) {
@@ -76,16 +76,10 @@ export function parseWhatsAppReport(text: string) {
                 lowerLine.includes('holiday treats') ||
                 lowerLine.includes('supremo') ||
                 lowerLine.includes('coffee deal') ||
-                lowerLine.includes('chiller') ||
-                lowerLine.includes('doughnut')
+                lowerLine.includes('chiller')
+                // REMOVED 'doughnut' keyword to prevent matching product lines like "Half Dozen", "Box of 3", etc.
             ) {
-                // 1. EXTRACT MONEY -> Merge into Beverages
-                const val = extractMoneyFromSlash(line);
-                if (val > 0) {
-                    data.beverages += val;
-                }
-
-                // 2. EXTRACT QUANTITY (PCS) -> sales_mtd & combo_details
+                // EXTRACT QUANTITY (PCS) -> combo_details
                 // Logic: Look for number before '/' or after colon
                 let pcs = 0;
                 if (line.includes('/')) {
@@ -104,8 +98,6 @@ export function parseWhatsAppReport(text: string) {
                 }
 
                 if (pcs > 0) {
-                    // data.sales_mtd += pcs; // REMOVED: Count stored in combo_details only. Keep sales_mtd for money.
-
                     // Detailed JSON
                     let key = line.split('/')[0].split(':')[0].trim();
                     // Clean up key
@@ -135,6 +127,15 @@ function extractMoneyFromSlash(text: string): number {
         if (parts[1].toLowerCase().includes('rm') || parts[1].match(/[0-9]/)) {
             return extractMoney(parts[1]);
         }
+    }
+    return extractMoney(text);
+}
+
+function extractMoneyBeforeSlash(text: string): number {
+    if (text.includes('/')) {
+        const parts = text.split('/');
+        // Extract from the first part (before slash): "Beverages (RM) RM 93.76" from "Beverages (RM) RM 93.76/RM200"
+        return extractMoney(parts[0]);
     }
     return extractMoney(text);
 }

@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "SalesTracker",
   },
+  icons: {
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
