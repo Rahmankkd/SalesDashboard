@@ -33,6 +33,17 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# wrangler local configs (may contain secrets)
+wrangler.toml.local
+
+# debug/maintenance scripts (contain sensitive operations)
+debug-*.js
+cleanup-*.js
+fix-*.js
+force-*.js
+add-*.js
+check-*.js
+
 # vercel
 .vercel
 
