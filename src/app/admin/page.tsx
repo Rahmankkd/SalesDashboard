@@ -31,6 +31,15 @@ export default function AdminPage() {
     const [showVarianceModal, setShowVarianceModal] = useState(false);
     const [varianceResolved, setVarianceResolved] = useState(false);
 
+    // Missing Data Tracker State
+    const [showMissingTracker, setShowMissingTracker] = useState(false);
+    const [missingDataRange, setMissingDataRange] = useState({
+        start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        end: new Date().toISOString().split('T')[0]
+    });
+    const [missingReports, setMissingReports] = useState<any[]>([]);
+    const [missingDataLoading, setMissingDataLoading] = useState(false);
+
     const [parsedData, setParsedData] = useState({
         outletName: '',
         reportDate: null as string | null,
@@ -88,6 +97,63 @@ export default function AdminPage() {
 
         if (data) setTodaysReports(data);
     };
+
+    const fetchMissingReports = async () => {
+        setMissingDataLoading(true);
+
+        try {
+            // Fetch all reports in the date range
+            const { data: reports } = await supabase
+                .from('sales_reports')
+                .select('outlet_id, date')
+                .gte('date', `${missingDataRange.start}T00:00:00`)
+                .lte('date', `${missingDataRange.end}T23:59:59`);
+
+            // Generate expected date range
+            const dates: string[] = [];
+            const startDate = new Date(missingDataRange.start);
+            const endDate = new Date(missingDataRange.end);
+
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                dates.push(d.toISOString().split('T')[0]);
+            }
+
+            // Build missing reports matrix
+            const matrix = outlets.map(outlet => {
+                const outletReports = dates.map(date => {
+                    const hasReport = reports?.some(r =>
+                        r.outlet_id === outlet.id &&
+                        r.date.split('T')[0] === date
+                    );
+                    return {
+                        date,
+                        hasReport,
+                        isFuture: new Date(date) > new Date()
+                    };
+                });
+
+                const missingCount = outletReports.filter(r => !r.hasReport && !r.isFuture).length;
+
+                return {
+                    outlet,
+                    reports: outletReports,
+                    missingCount
+                };
+            });
+
+            setMissingReports(matrix);
+        } catch (err) {
+            console.error('Error fetching missing reports:', err);
+        } finally {
+            setMissingDataLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (showMissingTracker && outlets.length > 0) {
+            fetchMissingReports();
+        }
+    }, [missingDataRange, outlets, showMissingTracker]);
 
     const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -352,7 +418,189 @@ export default function AdminPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  
+                {/* MISSING DATA TRACKER */}
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                    <button 
+                        onClick={() => setShowMissingTracker(!showMissingTracker)}
+                        className="w-full p-6 flex items-center justify-between hover:bg-white/5 transition-all"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                            </div>
+                            <div className="text-left">
+                                <h2 className="text-xl font-black text-white">Missing Data Tracker</h2>
+                                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Check which outlets need data entry</p>
+                            </div>
+                        </div>
+                        <svg className={`w-6 h-6 text-slate-400 transition-transform ${showMissingTracker ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    {showMissingTracker && (
+                        <div className="border-t border-white/10 p-6 space-y-6">
+                            {/* Date Range Controls */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Start Date</label>
+                                    <input 
+                                        type="date" 
+                                        value={missingDataRange.start}
+                                        onChange={(e) => setMissingDataRange(prev => ({ ...prev, start: e.target.value }))}
+                                        className="w-full p-3 bg-slate-900/50 border border-white/10 rounded-xl text-white text-sm outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">End Date</label>
+                                    <input 
+                                        type="date" 
+                                        value={missingDataRange.end}
+                                        onChange={(e) => setMissingDataRange(prev => ({ ...prev, end: e.target.value }))}
+                                        className="w-full p-3 bg-slate-900/50 border border-white/10 rounded-xl text-white text-sm outline-none"
+                                    />
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <button 
+                                        onClick={() => setMissingDataRange({ 
+                                            start: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                            end: new Date().toISOString().split('T')[0]
+                                        })}
+                                        className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white transition-all"
+                                    >
+                                        Last 3 Days
+                                    </button>
+                                    <button 
+                                        onClick={() => setMissingDataRange({ 
+                                            start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                            end: new Date().toISOString().split('T')[0]
+                                        })}
+                                        className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white transition-all"
+                                    >
+                                        Last Week
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Summary Stats */}
+                            {!missingDataLoading && missingReports.length > 0 && (() => {
+                                const totalExpected = missingReports.reduce((sum, m) => {
+                                    const nonFuture = m.reports.filter((r: any) => !r.isFuture).length;
+                                    return sum + nonFuture;
+                                }, 0);
+                                const totalMissing = missingReports.reduce((sum, m) => sum + m.missingCount, 0);
+                                const totalSubmitted = totalExpected - totalMissing;
+                                const percentage = totalExpected > 0 ? Math.round((totalSubmitted / totalExpected) * 100) : 0;
+
+                                return (
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500/30 rounded-xl p-4">
+                                            <p className="text-[10px] font-bold text-blue-300 uppercase tracking-widest mb-1">Expected</p>
+                                            <p className="text-3xl font-black text-white">{totalExpected}</p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 border border-green-500/30 rounded-xl p-4">
+                                            <p className="text-[10px] font-bold text-green-300 uppercase tracking-widest mb-1">Submitted</p>
+                                            <p className="text-3xl font-black text-white">{totalSubmitted}</p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-red-600/20 to-red-800/20 border border-red-500/30 rounded-xl p-4">
+                                            <p className="text-[10px] font-bold text-red-300 uppercase tracking-widest mb-1">Missing</p>
+                                            <p className="text-3xl font-black text-white">{totalMissing}</p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 border border-purple-500/30 rounded-xl p-4">
+                                            <p className="text-[10px] font-bold text-purple-300 uppercase tracking-widest mb-1">Complete</p>
+                                            <p className="text-3xl font-black text-white">{percentage}%</p>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Matrix View */}
+                            {missingDataLoading ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <p className="text-slate-400 text-sm">Loading missing data...</p>
+                                </div>
+                            ) : missingReports.length > 0 ? (
+                                <div className="bg-slate-900/50 rounded-xl p-4 overflow-x-auto">
+                                    <table className="min-w-full text-xs">
+                                        <thead>
+                                            <tr>
+                                                <th className="text-left text-slate-400 font-bold uppercase tracking-widest pb-3 pr-4 sticky left-0 bg-slate-900/50">Outlet</th>
+                                                {missingReports[0]?.reports.map((r: any, i: number) => (
+                                                    <th key={i} className="text-center text-slate-400 font-bold px-2 pb-3">
+                                                        <div className="text-[9px]">{new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                                                    </th>
+                                                ))}
+                                                <th className="text-center text-slate-400 font-bold uppercase tracking-widest pl-4">Missing</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {missingReports.map((m: any, idx: number) => (
+                                                <tr key={idx} className="border-t border-white/5">
+                                                    <td className="py-2 pr-4 font-bold text-white sticky left-0 bg-slate-900/50">{m.outlet.name}</td>
+                                                    {m.reports.map((r: any, i: number) => (
+                                                        <td key={i} className="text-center px-2 py-2">
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (!r.hasReport && !r.isFuture) {
+                                                                        setUploadMode('History');
+                                                                        setSelectedOutletId(m.outlet.id);
+                                                                        setManualDate(r.date);
+                                                                        setShowMissingTracker(false);
+                                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                                    }
+                                                                }}
+                                                                className={`w-6 h-6 rounded-md transition-all ${
+                                                                    r.isFuture 
+                                                                        ? 'bg-slate-800 cursor-not-allowed' 
+                                                                        : r.hasReport 
+                                                                            ? 'bg-green-600 hover:bg-green-500 cursor-default' 
+                                                                            : 'bg-red-600 hover:bg-red-500 cursor-pointer hover:scale-110'
+                                                                }`}
+                                                                title={r.isFuture ? 'Future date' : r.hasReport ? 'Report submitted' : `Click to upload for ${new Date(r.date).toLocaleDateString()}`}
+                                                            >
+                                                                {r.isFuture ? '' : r.hasReport ? '✓' : '✗'}
+                                                            </button>
+                                                        </td>
+                                                    ))}
+                                                    <td className="text-center pl-4 py-2 font-bold">
+                                                        <span className={`${m.missingCount > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                                                            {m.missingCount}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+
+                                    {/* Legend */}
+                                    <div className="flex items-center gap-6 mt-6 pt-4 border-t border-white/10">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded bg-green-600"></div>
+                                            <span className="text-[10px] text-slate-400 font-bold">Submitted</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded bg-red-600"></div>
+                                            <span className="text-[10px] text-slate-400 font-bold">Missing (Click to Upload)</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded bg-slate-800"></div>
+                                            <span className="text-[10px] text-slate-400 font-bold">Future Date</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-slate-400">
+                                    <p>No data available. Please select a date range.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 flex flex-col gap-6">
                         <div className={`border rounded-3xl p-1 shadow-2xl transition-colors duration-500 backdrop-blur-xl ${uploadMode === 'Bulk' ? 'bg-green-900/20 border-green-500/20' : uploadMode === 'History' ? 'bg-purple-900/20 border-purple-500/20' : 'bg-white/5 border-white/10'}`}>
                             <div className="bg-slate-900/40 rounded-2xl p-6 h-full">
