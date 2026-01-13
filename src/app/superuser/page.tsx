@@ -114,8 +114,55 @@ export default function SuperuserPage() {
         alert(result.message);
     };
 
-    const handleAddOutlet = async () => { /* ... existing logic ... */ };
-    const toggleOutletStatus = async (outletId: string, currentStatus: boolean) => { /* ... existing logic ... */ };
+    const handleAddOutlet = async () => {
+        if (!newOutlet.name || !newOutlet.region) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const { error } = await supabase
+                .from('outlets')
+                .insert([{
+                    name: newOutlet.name.toUpperCase(),
+                    region: newOutlet.region,
+                    is_active: true
+                }]);
+
+            if (error) throw error;
+
+            alert(`✅ Store "${newOutlet.name}" created successfully!`);
+            setNewOutlet({ name: '', region: '' });
+            fetchOutlets();
+        } catch (err: any) {
+            alert('Error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleOutletStatus = async (outletId: string, currentStatus: boolean) => {
+        const action = currentStatus ? 'disable' : 'enable';
+        if (!confirm(`Are you sure you want to ${action} this store?`)) return;
+
+        setLoading(true);
+        try {
+            const { error } = await supabase
+                .from('outlets')
+                .update({ is_active: !currentStatus })
+                .eq('id', outletId);
+
+            if (error) throw error;
+
+            alert(`✅ Store ${action}d successfully!`);
+            fetchOutlets();
+        } catch (err: any) {
+            alert('Error: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (!userRole) return <div className="p-10">Loading access...</div>;
 
