@@ -26,13 +26,13 @@ export default function Dashboard() {
   const [selectedOutlet, setSelectedOutlet] = useState('All');
 
   const [dateRange, setDateRange] = useState({
-    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    start: new Date().toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
 
   const [compareRange, setCompareRange] = useState({
-    start: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1).toISOString().split('T')[0],
-    end: new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0]
+    start: new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0],
+    end: new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0]
   });
 
   const [chartData, setChartData] = useState<any[]>([]);
